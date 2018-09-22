@@ -1,1 +1,9 @@
 YAML-LibYAML-API-*
+pm_to_blib
+blib
+/Makefile
+MYMETA.*
+LibYAML/Makefile
+LibYAML/*.bs
+LibYAML/*.o
+LibYAML/XS.c
