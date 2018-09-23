@@ -3,6 +3,7 @@
 #include "perl.h"
 #define NO_XSLOCKS
 #include "XSUB.h"
+#define NEED_newRV_noinc
 #include "ppport.h"
 #include <yaml.h>
 #include <stdlib.h>
@@ -66,6 +67,8 @@ parse_events(const char *input, AV *perl_events)
             XCPT_RETHROW;
         }
 
+        RETVAL = newSViv(1);
+
     }
     OUTPUT: RETVAL
 
@@ -74,8 +77,7 @@ libyaml_version()
     CODE:
     {
         const char *v = yaml_get_version_string();
-        SV* version = newSVpv(v, strlen(v));
-        RETVAL = version;
+        RETVAL = newSVpv(v, strlen(v));
 
     }
     OUTPUT: RETVAL
