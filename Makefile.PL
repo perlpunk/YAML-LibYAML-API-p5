@@ -25,6 +25,7 @@ my %WriteMakefileArgs = (
     "IO::Handle" => 0,
     "IPC::Open3" => 0,
     "Test::More" => "0.98",
+    "YAML::PP" => "0.007",
     "YAML::PP::Parser" => 0,
     "blib" => "1.01"
   },
@@ -40,6 +41,7 @@ my %FallbackPrereqs = (
   "IO::Handle" => 0,
   "IPC::Open3" => 0,
   "Test::More" => "0.98",
+  "YAML::PP" => "0.007",
   "YAML::PP::Parser" => 0,
   "blib" => "1.01",
   "strict" => 0,
