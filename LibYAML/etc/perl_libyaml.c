@@ -39,6 +39,7 @@ parser_error_msg(yaml_parser_t *parser, char *problem)
 HV *
 libyaml_to_perl_event(yaml_event_t *event)
 {
+    dTHX;
     HV *perl_event;
     HV *perl_start_mark;
     HV *perl_end_mark;
