@@ -1,3 +1,7 @@
+0.001_002 2018-09-24 23:28:46+02:00
+
+    - Require YAML::PP 0.008 / support perl 5.8
+
 0.001_001 2018-09-23 19:32:20+02:00
 
     - Several XS and prereq fixes

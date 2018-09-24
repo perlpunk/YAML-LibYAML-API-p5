@@ -42,7 +42,7 @@ YAML::LibYAML::API - Wrapper around the C libyaml library
 
 This module provides a thin wrapper around the C libyaml API. Currently it
 only provides a function for getting a list of parsing events for an input
-string.
+string. Functions for emitting and the document loading API are still todo.
 
 C<libyaml-dev> has to be installed.
 
