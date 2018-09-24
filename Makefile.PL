@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use 5.010000;
+use 5.008000;
 
 use ExtUtils::MakeMaker;
 
@@ -14,7 +14,7 @@ my %WriteMakefileArgs = (
   },
   "DISTNAME" => "YAML-LibYAML-API",
   "LICENSE" => "perl",
-  "MIN_PERL_VERSION" => "5.010000",
+  "MIN_PERL_VERSION" => "5.008000",
   "NAME" => "YAML::LibYAML::API",
   "PREREQ_PM" => {
     "strict" => 0,
@@ -25,7 +25,7 @@ my %WriteMakefileArgs = (
     "IO::Handle" => 0,
     "IPC::Open3" => 0,
     "Test::More" => "0.98",
-    "YAML::PP" => "0.007",
+    "YAML::PP" => "0.008",
     "YAML::PP::Parser" => 0,
     "blib" => "1.01"
   },
@@ -41,7 +41,7 @@ my %FallbackPrereqs = (
   "IO::Handle" => 0,
   "IPC::Open3" => 0,
   "Test::More" => "0.98",
-  "YAML::PP" => "0.007",
+  "YAML::PP" => "0.008",
   "YAML::PP::Parser" => 0,
   "blib" => "1.01",
   "strict" => 0,
