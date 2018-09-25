@@ -50,9 +50,9 @@ C<libyaml-dev> has to be installed.
 
 =over
 
-=item libyaml L<https://github.com/yaml/libyaml>
+=item L<libyaml|https://github.com/yaml/libyaml>
 
-=item YAML::XS L<https://metacpan.org/pod/YAML::XS>
+=item L<YAML::XS>
 
 =back
 
