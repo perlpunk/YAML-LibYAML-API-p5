@@ -61,7 +61,6 @@ libyaml_to_perl_event(yaml_event_t *event)
     SV *hash_ref_end;
 
     perl_event = newHV();
-    perl_version_directive = newHV();
     type = event->type;
 
     perl_event_anchor = NULL;
@@ -79,7 +78,8 @@ libyaml_to_perl_event(yaml_event_t *event)
                 perl_event, "implicit", 8,
                 newSViv( 1 ), 0
             );
-        if (event->data.document_start.version_directive)
+        if (event->data.document_start.version_directive) {
+            perl_version_directive = newHV();
             hv_store(
                 perl_version_directive, "major", 5,
                 newSViv( event->data.document_start.version_directive->major ), 0
@@ -92,6 +92,9 @@ libyaml_to_perl_event(yaml_event_t *event)
                 perl_event, "version_directive", 17,
                 newRV_noinc((SV *)perl_version_directive), 0
             );
+        }
+
+
     }
     else if (type == YAML_DOCUMENT_END_EVENT) {
         perl_event_type = "document_end_event";
