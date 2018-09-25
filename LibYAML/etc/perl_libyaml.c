@@ -64,142 +64,142 @@ libyaml_to_perl_event(yaml_event_t *event)
     perl_version_directive = newHV();
     type = event->type;
 
-            perl_event_anchor = NULL;
-            perl_event_tag = NULL;
-            if (type == YAML_NO_EVENT)
-                croak("%s", "Unexpected event YAML_NO_EVENT");
-            else if (type == YAML_STREAM_START_EVENT)
-                perl_event_type = "stream_start_event";
-            else if (type == YAML_STREAM_END_EVENT)
-                perl_event_type = "stream_end_event";
-            else if (type == YAML_DOCUMENT_START_EVENT) {
-                perl_event_type = "document_start_event";
-                if (event->data.document_start.implicit)
-                    hv_store(
-                        perl_event, "implicit", 8,
-                        newSViv( 1 ), 0
-                    );
-                if (event->data.document_start.version_directive)
-                    hv_store(
-                        perl_version_directive, "major", 5,
-                        newSViv( event->data.document_start.version_directive->major ), 0
-                    );
-                    hv_store(
-                        perl_version_directive, "minor", 5,
-                        newSViv( event->data.document_start.version_directive->minor ), 0
-                    );
-                    hv_store(
-                        perl_event, "version_directive", 17,
-                        newRV_noinc((SV *)perl_version_directive), 0
-                    );
-            }
-            else if (type == YAML_DOCUMENT_END_EVENT) {
-                perl_event_type = "document_end_event";
-                if (event->data.document_end.implicit)
-                    hv_store(
-                        perl_event, "implicit", 8,
-                        newSViv( 1 ), 0
-                    );
-            }
-            else if (type == YAML_MAPPING_START_EVENT) {
-                perl_event_type = "mapping_start_event";
-                if (event->data.mapping_start.anchor)
-                    perl_event_anchor = event->data.mapping_start.anchor;
-                if (event->data.mapping_start.tag)
-                    perl_event_tag = event->data.mapping_start.tag;
-                hv_store(
-                    perl_event, "style", 5,
-                    newSViv( event->data.mapping_start.style ), 0
-                );
-            }
-            else if (type == YAML_MAPPING_END_EVENT)
-                perl_event_type = "mapping_end_event";
-            else if (type == YAML_SEQUENCE_START_EVENT) {
-                perl_event_type = "sequence_start_event";
-                if (event->data.sequence_start.anchor)
-                    perl_event_anchor = event->data.sequence_start.anchor;
-                if (event->data.sequence_start.tag)
-                    perl_event_tag = event->data.sequence_start.tag;
-                hv_store(
-                    perl_event, "style", 5,
-                    newSViv( event->data.sequence_start.style ), 0
-                );
-            }
-            else if (type == YAML_SEQUENCE_END_EVENT)
-                perl_event_type = "sequence_end_event";
-            else if (type == YAML_SCALAR_EVENT) {
-                perl_event_type = "scalar_event";
-                if (event->data.scalar.anchor)
-                    perl_event_anchor = event->data.scalar.anchor;
-                if (event->data.scalar.tag)
-                    perl_event_tag = event->data.scalar.tag;
-
-                switch (event->data.scalar.style) {
-                case YAML_ANY_SCALAR_STYLE:
-                    abort();
-                }
-                hv_store(
-                    perl_event, "style", 5,
-                    newSViv( event->data.scalar.style ),
-                    0
-                );
-                hv_store(
-                    perl_event, "value", 5,
-                    newSVpv( event->data.scalar.value, event->data.scalar.length ),
-                    0
-                );
-            }
-            else if (type == YAML_ALIAS_EVENT) {
-                perl_event_type = "alias_event";
-                hv_store(
-                    perl_event, "value", 5,
-                    newSVpv( event->data.alias.anchor, strlen(event->data.alias.anchor) ),
-                    0
-                );
-            }
-            else
-                abort();
-
+    perl_event_anchor = NULL;
+    perl_event_tag = NULL;
+    if (type == YAML_NO_EVENT)
+        croak("%s", "Unexpected event YAML_NO_EVENT");
+    else if (type == YAML_STREAM_START_EVENT)
+        perl_event_type = "stream_start_event";
+    else if (type == YAML_STREAM_END_EVENT)
+        perl_event_type = "stream_end_event";
+    else if (type == YAML_DOCUMENT_START_EVENT) {
+        perl_event_type = "document_start_event";
+        if (event->data.document_start.implicit)
             hv_store(
-                perl_event, "name", 4,
-                newSVpv( perl_event_type, strlen(perl_event_type) ),
-                0
+                perl_event, "implicit", 8,
+                newSViv( 1 ), 0
             );
+        if (event->data.document_start.version_directive)
+            hv_store(
+                perl_version_directive, "major", 5,
+                newSViv( event->data.document_start.version_directive->major ), 0
+            );
+            hv_store(
+                perl_version_directive, "minor", 5,
+                newSViv( event->data.document_start.version_directive->minor ), 0
+            );
+            hv_store(
+                perl_event, "version_directive", 17,
+                newRV_noinc((SV *)perl_version_directive), 0
+            );
+    }
+    else if (type == YAML_DOCUMENT_END_EVENT) {
+        perl_event_type = "document_end_event";
+        if (event->data.document_end.implicit)
+            hv_store(
+                perl_event, "implicit", 8,
+                newSViv( 1 ), 0
+            );
+    }
+    else if (type == YAML_MAPPING_START_EVENT) {
+        perl_event_type = "mapping_start_event";
+        if (event->data.mapping_start.anchor)
+            perl_event_anchor = event->data.mapping_start.anchor;
+        if (event->data.mapping_start.tag)
+            perl_event_tag = event->data.mapping_start.tag;
+        hv_store(
+            perl_event, "style", 5,
+            newSViv( event->data.mapping_start.style ), 0
+        );
+    }
+    else if (type == YAML_MAPPING_END_EVENT)
+        perl_event_type = "mapping_end_event";
+    else if (type == YAML_SEQUENCE_START_EVENT) {
+        perl_event_type = "sequence_start_event";
+        if (event->data.sequence_start.anchor)
+            perl_event_anchor = event->data.sequence_start.anchor;
+        if (event->data.sequence_start.tag)
+            perl_event_tag = event->data.sequence_start.tag;
+        hv_store(
+            perl_event, "style", 5,
+            newSViv( event->data.sequence_start.style ), 0
+        );
+    }
+    else if (type == YAML_SEQUENCE_END_EVENT)
+        perl_event_type = "sequence_end_event";
+    else if (type == YAML_SCALAR_EVENT) {
+        perl_event_type = "scalar_event";
+        if (event->data.scalar.anchor)
+            perl_event_anchor = event->data.scalar.anchor;
+        if (event->data.scalar.tag)
+            perl_event_tag = event->data.scalar.tag;
 
-            if (perl_event_anchor) {
-                hv_store(
-                    perl_event, "anchor", 6,
-                    newSVpv( perl_event_anchor, strlen(perl_event_anchor) ),
-                    0
-                );
-            }
-            if (perl_event_tag) {
-                hv_store(
-                    perl_event, "tag", 3,
-                    newSVpv( perl_event_tag, strlen(perl_event_tag) ),
-                    0
-                );
-            }
+        switch (event->data.scalar.style) {
+        case YAML_ANY_SCALAR_STYLE:
+            abort();
+        }
+        hv_store(
+            perl_event, "style", 5,
+            newSViv( event->data.scalar.style ),
+            0
+        );
+        hv_store(
+            perl_event, "value", 5,
+            newSVpv( event->data.scalar.value, event->data.scalar.length ),
+            0
+        );
+    }
+    else if (type == YAML_ALIAS_EVENT) {
+        perl_event_type = "alias_event";
+        hv_store(
+            perl_event, "value", 5,
+            newSVpv( event->data.alias.anchor, strlen(event->data.alias.anchor) ),
+            0
+        );
+    }
+    else
+        abort();
 
-            start_mark = event->start_mark;
-            end_mark = event->end_mark;
-            perl_start_mark = newHV();
-            perl_end_mark = newHV();
+    hv_store(
+        perl_event, "name", 4,
+        newSVpv( perl_event_type, strlen(perl_event_type) ),
+        0
+    );
 
-            hv_store( perl_start_mark, "line", 4, newSViv( start_mark.line ), 0 );
+    if (perl_event_anchor) {
+        hv_store(
+            perl_event, "anchor", 6,
+            newSVpv( perl_event_anchor, strlen(perl_event_anchor) ),
+            0
+        );
+    }
+    if (perl_event_tag) {
+        hv_store(
+            perl_event, "tag", 3,
+            newSVpv( perl_event_tag, strlen(perl_event_tag) ),
+            0
+        );
+    }
 
-            hv_store( perl_start_mark, "column", 6, newSViv( start_mark.column ), 0 );
+    start_mark = event->start_mark;
+    end_mark = event->end_mark;
+    perl_start_mark = newHV();
+    perl_end_mark = newHV();
 
-            hash_ref_start = newRV_noinc((SV *)perl_start_mark);
-            hv_store( perl_event, "start", 5, hash_ref_start, 0 );
+    hv_store( perl_start_mark, "line", 4, newSViv( start_mark.line ), 0 );
+
+    hv_store( perl_start_mark, "column", 6, newSViv( start_mark.column ), 0 );
+
+    hash_ref_start = newRV_noinc((SV *)perl_start_mark);
+    hv_store( perl_event, "start", 5, hash_ref_start, 0 );
 
 
-            hv_store( perl_end_mark, "line", 4, newSViv( end_mark.line ), 0 );
+    hv_store( perl_end_mark, "line", 4, newSViv( end_mark.line ), 0 );
 
-            hv_store( perl_end_mark, "column", 6, newSViv( end_mark.column ), 0 );
+    hv_store( perl_end_mark, "column", 6, newSViv( end_mark.column ), 0 );
 
-            hash_ref_end = newRV_noinc((SV *)perl_end_mark);
-            hv_store( perl_event, "end", 3, hash_ref_end, 0 );
+    hash_ref_end = newRV_noinc((SV *)perl_end_mark);
+    hv_store( perl_event, "end", 3, hash_ref_end, 0 );
 
     return perl_event;
 }
