@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Test::More;
 
+use YAML::LibYAML::API;
 use YAML::LibYAML::API::XS;
 use YAML::PP::Parser;
 
@@ -21,7 +22,7 @@ list:
 EOM
 
 my $ev = [];
-YAML::LibYAML::API::XS::parse_events($yaml, $ev);
+YAML::LibYAML::API::parse_events($yaml, $ev);
 
 my @ts = map { YAML::PP::Parser->event_to_test_suite([ $_->{name} => $_ ]) } @$ev;
 my @exp_events = (

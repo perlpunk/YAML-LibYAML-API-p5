@@ -5,6 +5,12 @@
 #include "ppport.h"
 #include <yaml.h>
 
+#define SCALAR_STYLE_PLAIN ":"
+#define SCALAR_STYLE_DOUBLEQUOTED "\""
+#define SCALAR_STYLE_SINGLEQUOTED "'"
+#define SCALAR_STYLE_LITERAL "|"
+#define SCALAR_STYLE_FOLDED ">"
+
 char *
 parser_error_msg(yaml_parser_t *parser, char *problem)
 {
@@ -49,7 +55,6 @@ libyaml_to_perl_event(yaml_event_t *event)
     char *perl_event_anchor;
     char *perl_event_tag;
     char *perl_event_type;
-    char *scalar_style;
     yaml_mark_t start_mark;
     yaml_mark_t end_mark;
     SV *hash_ref_start;
@@ -120,28 +125,14 @@ libyaml_to_perl_event(yaml_event_t *event)
                     perl_event_anchor = event->data.scalar.anchor;
                 if (event->data.scalar.tag)
                     perl_event_tag = event->data.scalar.tag;
+
                 switch (event->data.scalar.style) {
-                case YAML_PLAIN_SCALAR_STYLE:
-                    scalar_style = ":";
-                    break;
-                case YAML_SINGLE_QUOTED_SCALAR_STYLE:
-                    scalar_style = "'";
-                    break;
-                case YAML_DOUBLE_QUOTED_SCALAR_STYLE:
-                    scalar_style = "\"";
-                    break;
-                case YAML_LITERAL_SCALAR_STYLE:
-                    scalar_style = "|";
-                    break;
-                case YAML_FOLDED_SCALAR_STYLE:
-                    scalar_style = ">";
-                    break;
                 case YAML_ANY_SCALAR_STYLE:
                     abort();
                 }
                 hv_store(
                     perl_event, "style", 5,
-                    newSVpv( scalar_style, strlen(scalar_style) ),
+                    newSViv( event->data.scalar.style ),
                     0
                 );
                 hv_store(
