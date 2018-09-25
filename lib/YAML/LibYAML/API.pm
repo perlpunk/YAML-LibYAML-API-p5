@@ -56,6 +56,12 @@ sub parse_events {
         if ($event->{name} eq 'scalar_event') {
             $event->{style} = $scalar_styles[ $event->{style} ];
         }
+        elsif ($event->{name} eq 'sequence_start_event') {
+            $event->{style} = $sequence_styles[ $event->{style} ];
+        }
+        elsif ($event->{name} eq 'mapping_start_event') {
+            $event->{style} = $mapping_styles[ $event->{style} ];
+        }
     }
 }
 

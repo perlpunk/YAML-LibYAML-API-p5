@@ -107,6 +107,10 @@ libyaml_to_perl_event(yaml_event_t *event)
                     perl_event_anchor = event->data.mapping_start.anchor;
                 if (event->data.mapping_start.tag)
                     perl_event_tag = event->data.mapping_start.tag;
+                hv_store(
+                    perl_event, "style", 5,
+                    newSViv( event->data.mapping_start.style ), 0
+                );
             }
             else if (type == YAML_MAPPING_END_EVENT)
                 perl_event_type = "mapping_end_event";
@@ -116,6 +120,10 @@ libyaml_to_perl_event(yaml_event_t *event)
                     perl_event_anchor = event->data.sequence_start.anchor;
                 if (event->data.sequence_start.tag)
                     perl_event_tag = event->data.sequence_start.tag;
+                hv_store(
+                    perl_event, "style", 5,
+                    newSViv( event->data.sequence_start.style ), 0
+                );
             }
             else if (type == YAML_SEQUENCE_END_EVENT)
                 perl_event_type = "sequence_end_event";
