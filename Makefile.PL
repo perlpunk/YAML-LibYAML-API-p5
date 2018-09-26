@@ -17,6 +17,7 @@ my %WriteMakefileArgs = (
   "MIN_PERL_VERSION" => "5.008000",
   "NAME" => "YAML::LibYAML::API",
   "PREREQ_PM" => {
+    "constant" => 0,
     "strict" => 0,
     "warnings" => 0
   },
@@ -29,7 +30,7 @@ my %WriteMakefileArgs = (
     "YAML::PP::Parser" => 0,
     "blib" => "1.01"
   },
-  "VERSION" => "0.001_002",
+  "VERSION" => "0.001_003",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -44,6 +45,7 @@ my %FallbackPrereqs = (
   "YAML::PP" => "0.008",
   "YAML::PP::Parser" => 0,
   "blib" => "1.01",
+  "constant" => 0,
   "strict" => 0,
   "warnings" => 0
 );

@@ -1,3 +1,10 @@
+0.001_003 2018-09-27 00:07:35+02:00
+
+    - Add version directive to document_start_event
+    - Add sequence and mapping styles
+    - Use numeric constants for styles
+    - Pod fixes (PR#3 by MANWAR)
+
 0.001_002 2018-09-24 23:28:46+02:00
 
     - Require YAML::PP 0.008 / support perl 5.8
