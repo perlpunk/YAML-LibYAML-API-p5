@@ -104,7 +104,10 @@ This module provides a thin wrapper around the C libyaml API. Currently it
 only provides a function for getting a list of parsing events for an input
 string. Functions for emitting and the document loading API are still todo.
 
-C<libyaml-dev> has to be installed.
+This is just one of the first releases. The function names will eventually be
+changed.
+
+C<libyaml-dev> has to be installed. It might be included in a future release.
 
 =head1 SEE ALSO
 
@@ -115,6 +118,10 @@ C<libyaml-dev> has to be installed.
 =item L<YAML::XS>
 
 =back
+
+=head1 AUTHOR
+
+Tina Müller <tinita@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
