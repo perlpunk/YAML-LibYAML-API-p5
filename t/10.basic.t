@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use Test::More;
 
+use FindBin '$Bin';
+
 use YAML::LibYAML::API;
 use YAML::LibYAML::API::XS;
 use YAML::PP::Parser;
@@ -22,7 +24,7 @@ list:
 EOM
 
 my $ev = [];
-YAML::LibYAML::API::parse_events($yaml, $ev);
+YAML::LibYAML::API::parse_string_events($yaml, $ev);
 
 my @ts = map { YAML::PP::Parser->event_to_test_suite([ $_->{name} => $_ ]) } @$ev;
 my @exp_events = (
@@ -129,5 +131,52 @@ is_deeply($ev, \@exp_events, "parse_events - Events match");
 my $libyaml_version = YAML::LibYAML::API::XS::libyaml_version();
 diag "libyaml version = $libyaml_version";
 cmp_ok($libyaml_version, '=~', qr{^\d+\.\d+(?:\.\d+)$}, "libyaml_version ($libyaml_version)");
+
+$ev = [];
+YAML::LibYAML::API::parse_file_events("$Bin/data/simple.yaml", $ev);
+
+my @exp_file_events = (
+    { name => 'stream_start_event',
+        start => { line => 0, column => 0 },
+        end   => { line => 0, column => 0 },
+    },
+    { name => 'document_start_event',
+        start => { line => 0, column => 0 },
+        end   => { line => 0, column => 3 },
+    },
+    { name => 'mapping_start_event', style => 'block',
+        start => { line => 1, column => 0 },
+        end   => { line => 1, column => 0 },
+    },
+    { name => 'scalar_event', value => 'a', style => ':',
+        start => { line => 1, column => 0 },
+        end   => { line => 1, column => 1 },
+    },
+    { name => 'scalar_event', value => 'b', style => ':',
+        start => { line => 1, column => 3 },
+        end   => { line => 1, column => 4 },
+    },
+    { name => 'mapping_end_event',
+        start => { line => 2, column => 0 },
+        end   => { line => 2, column => 0 },
+    },
+    { name => 'document_end_event', implicit => 1,
+        start => { line => 2, column => 0 },
+        end   => { line => 2, column => 0 },
+    },
+    { name => 'stream_end_event',
+        start => { line => 2, column => 0 },
+        end   => { line => 2, column => 0 },
+    },
+);
+is_deeply($ev, \@exp_file_events, "parse_file_events");
+
+open my $fh, "<", "$Bin/data/simple.yaml" or die $!;
+
+$ev = [];
+YAML::LibYAML::API::parse_filehandle_events($fh, $ev);
+close $fh;
+
+is_deeply($ev, \@exp_file_events, "parse_filehandle_events");
 
 done_testing;

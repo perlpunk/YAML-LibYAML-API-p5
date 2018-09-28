@@ -49,9 +49,31 @@ my @mapping_styles = (
 my %mapping_styles;
 @mapping_styles{ 0 .. $#mapping_styles } = @mapping_styles;
 
+# deprecated
 sub parse_events {
+    parse_string_events(@_);
+}
+
+sub parse_string_events {
     my ($yaml, $events) = @_;
-    YAML::LibYAML::API::XS::parse_events($yaml, $events);
+    YAML::LibYAML::API::XS::parse_string_events($yaml, $events);
+    _numeric_to_string($events);
+}
+
+sub parse_file_events {
+    my ($file, $events) = @_;
+    YAML::LibYAML::API::XS::parse_file_events($file, $events);
+    _numeric_to_string($events);
+}
+
+sub parse_filehandle_events {
+    my ($fh, $events) = @_;
+    YAML::LibYAML::API::XS::parse_filehandle_events($fh, $events);
+    _numeric_to_string($events);
+}
+
+sub _numeric_to_string {
+    my ($events) = @_;
     for my $event (@$events) {
         if ($event->{name} eq 'scalar_event') {
             $event->{style} = $scalar_styles[ $event->{style} ];
@@ -96,13 +118,17 @@ YAML::LibYAML::API - Wrapper around the C libyaml library
       literal
     EOM
     my $events = [];
-    YAML::LibYAML::API::XS::parse_events($yaml, $events);
+    YAML::LibYAML::API::XS::parse_string_events($yaml, $events);
+    # or:
+    YAML::LibYAML::API::XS::parse_file_events($filename, $events);
+    YAML::LibYAML::API::XS::parse_filehandle_events($fh, $events);
 
 =head1 DESCRIPTION
 
-This module provides a thin wrapper around the C libyaml API. Currently it
-only provides a function for getting a list of parsing events for an input
-string. Functions for emitting and the document loading API are still todo.
+This module provides a thin wrapper around the C libyaml API. Currently it only
+provides functions for getting a list of parsing events for an input string,
+file or file handle. Functions for emitting and the document loading API are
+still todo.
 
 This is just one of the first releases. The function names will eventually be
 changed.

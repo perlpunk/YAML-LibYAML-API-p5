@@ -190,7 +190,6 @@ libyaml_to_perl_event(yaml_event_t *event)
     perl_end_mark = newHV();
 
     hv_store( perl_start_mark, "line", 4, newSViv( start_mark.line ), 0 );
-
     hv_store( perl_start_mark, "column", 6, newSViv( start_mark.column ), 0 );
 
     hash_ref_start = newRV_noinc((SV *)perl_start_mark);
@@ -198,7 +197,6 @@ libyaml_to_perl_event(yaml_event_t *event)
 
 
     hv_store( perl_end_mark, "line", 4, newSViv( end_mark.line ), 0 );
-
     hv_store( perl_end_mark, "column", 6, newSViv( end_mark.column ), 0 );
 
     hash_ref_end = newRV_noinc((SV *)perl_end_mark);
@@ -206,3 +204,45 @@ libyaml_to_perl_event(yaml_event_t *event)
 
     return perl_event;
 }
+
+int
+parse_events(yaml_parser_t *parser, AV *perl_events)
+{
+
+    dTHX;
+    dXCPT;
+    yaml_event_t event;
+    HV *perl_event;
+    yaml_event_type_t type;
+
+    XCPT_TRY_START
+    {
+
+        while (1) {
+            if (!yaml_parser_parse(parser, &event)) {
+                croak("%s", parser_error_msg(parser, NULL));
+            }
+            type = event.type;
+
+            perl_event = libyaml_to_perl_event(&event);
+
+            av_push(perl_events, newRV_noinc( (SV *)perl_event));
+
+            yaml_event_delete(&event);
+
+            if (type == YAML_STREAM_END_EVENT)
+                break;
+        }
+
+    } XCPT_TRY_END
+
+    XCPT_CATCH
+    {
+        yaml_parser_delete(parser);
+        yaml_event_delete(&event);
+        XCPT_RETHROW;
+    }
+    return 1;
+}
+
+
