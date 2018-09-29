@@ -139,6 +139,7 @@ YAML::LibYAML::API - Wrapper around the C libyaml library
     my $version = YAML::LibYAML::API::XS::libyaml_version();
 
     my $yaml = <<'EOM';
+    # An example of various kinds of events
     ---
     foo: &ALIAS bar
     'alias': *ALIAS
@@ -150,18 +151,28 @@ YAML::LibYAML::API - Wrapper around the C libyaml library
     - |-
       literal
     EOM
+
+    # parse
     my $events = [];
     YAML::LibYAML::API::XS::parse_string_events($yaml, $events);
     # or:
     YAML::LibYAML::API::XS::parse_file_events($filename, $events);
     YAML::LibYAML::API::XS::parse_filehandle_events($fh, $events);
 
+    # emit
+    my $yaml = YAML::LibYAML::API::XS::emit_string_events($events);
+    # or:
+    YAML::LibYAML::API::XS::emit_file_events($filename, $events);
+    YAML::LibYAML::API::XS::emit_filehandle_events($fh, $events);
+
 =head1 DESCRIPTION
 
-This module provides a thin wrapper around the C libyaml API. Currently it only
-provides functions for getting a list of parsing events for an input string,
-file or file handle. Functions for emitting and the document loading API are
-still todo.
+This module provides a thin wrapper around the C libyaml API.
+
+Currently it provides functions for parsing and emitting events.
+
+libyaml also provides a loader/dumper API to load/dump YAML into a list
+of nodes. There's no wrapper for these functions yet.
 
 This is just one of the first releases. The function names will eventually be
 changed.
