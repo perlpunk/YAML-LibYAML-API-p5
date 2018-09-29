@@ -68,12 +68,15 @@ parse_file_events(const char *filename, AV *perl_events)
             parse_events(&parser, perl_events);
 
             fclose(input);
+            input = NULL;
             yaml_parser_delete(&parser);
 
         } XCPT_TRY_END
 
         XCPT_CATCH
         {
+            if (input)
+                fclose(input);
             yaml_parser_delete(&parser);
             XCPT_RETHROW;
         }
@@ -173,11 +176,14 @@ emit_file_events(const char *filename, AV *perl_events)
 
             yaml_emitter_delete(&emitter);
             fclose(output);
+            output = NULL;
 
         } XCPT_TRY_END
 
         XCPT_CATCH
         {
+            if (output)
+                fclose(output);
             yaml_emitter_delete(&emitter);
             XCPT_RETHROW;
         }
