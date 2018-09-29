@@ -214,6 +214,9 @@ close $fh;
 
 is_deeply($ev, \@exp_file_events, "parse_filehandle_events");
 
+
+
+
 $ev = \@exp_events;
 open $fh, '<',"$Bin/data/simple.yaml" or die $!;
 my $file_yaml = do { local $/; <$fh> };
@@ -221,7 +224,31 @@ close $fh;
 my $dump = YAML::LibYAML::API::emit_string_events($ev);
 
 $yaml =~ s/^\s+//;
-
 cmp_ok($dump, 'eq', $yaml, "emit_string_events");
 
+
+
+$ev = \@exp_file_events;
+YAML::LibYAML::API::emit_file_events("$Bin/data/simple.yaml.out", $ev);
+
+open $fh, "<", "$Bin/data/simple.yaml.out" or die $!;
+my $dump_file_yaml = do { local $/; <$fh> };
+close $fh;
+cmp_ok($dump_file_yaml, 'eq', $file_yaml, "emit_file_events");
+
+
+
+open $fh, ">", "$Bin/data/simple.yaml.out" or die $!;
+YAML::LibYAML::API::emit_filehandle_events($fh, $ev);
+close $fh;
+
+open $fh, "<", "$Bin/data/simple.yaml.out" or die $!;
+$dump_file_yaml = do { local $/; <$fh> };
+close $fh;
+cmp_ok($dump_file_yaml, 'eq', $file_yaml, "emit_filehandle_events");
+
 done_testing;
+
+END {
+    unlink "$Bin/data/simple.yaml.out";
+}

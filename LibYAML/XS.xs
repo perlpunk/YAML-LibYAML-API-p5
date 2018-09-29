@@ -67,6 +67,7 @@ parse_file_events(const char *filename, AV *perl_events)
 
             parse_events(&parser, perl_events);
 
+            fclose(input);
             yaml_parser_delete(&parser);
 
         } XCPT_TRY_END
@@ -127,6 +128,83 @@ emit_string_events(AV *perl_events)
                 croak("%s\n", "Could not initialize the emitter object");
             }
             yaml_emitter_set_output(&emitter, &append_output, (void *) yaml);
+            yaml_emitter_set_canonical(&emitter, 0);
+            yaml_emitter_set_unicode(&emitter, 0);
+
+            emit_events(&emitter, perl_events);
+
+            yaml_emitter_delete(&emitter);
+
+        } XCPT_TRY_END
+
+        XCPT_CATCH
+        {
+            yaml_emitter_delete(&emitter);
+            XCPT_RETHROW;
+        }
+
+        if (yaml) {
+            SvUTF8_off(yaml);
+        }
+        RETVAL = yaml;
+
+    }
+    OUTPUT: RETVAL
+
+SV *
+emit_file_events(const char *filename, AV *perl_events)
+    CODE:
+    {
+        dXCPT;
+        yaml_emitter_t emitter;
+        SV *yaml = newSVpvn("", 0);
+        FILE *output;
+
+        XCPT_TRY_START
+        {
+            if (!yaml_emitter_initialize(&emitter)) {
+                croak("%s\n", "Could not initialize the emitter object");
+            }
+            output = fopen(filename, "wb");
+            yaml_emitter_set_output_file(&emitter, output);
+            yaml_emitter_set_canonical(&emitter, 0);
+            yaml_emitter_set_unicode(&emitter, 0);
+
+            emit_events(&emitter, perl_events);
+
+            yaml_emitter_delete(&emitter);
+            fclose(output);
+
+        } XCPT_TRY_END
+
+        XCPT_CATCH
+        {
+            yaml_emitter_delete(&emitter);
+            XCPT_RETHROW;
+        }
+
+        if (yaml) {
+            SvUTF8_off(yaml);
+        }
+        RETVAL = yaml;
+
+    }
+    OUTPUT: RETVAL
+
+SV *
+emit_filehandle_events(FILE *output, AV *perl_events)
+    CODE:
+    {
+        dXCPT;
+        yaml_emitter_t emitter;
+        SV *yaml = newSVpvn("", 0);
+
+        XCPT_TRY_START
+        {
+            if (!yaml_emitter_initialize(&emitter)) {
+                croak("%s\n", "Could not initialize the emitter object");
+            }
+            yaml_emitter_set_output_file(&emitter, output);
             yaml_emitter_set_canonical(&emitter, 0);
             yaml_emitter_set_unicode(&emitter, 0);
 
