@@ -245,4 +245,193 @@ parse_events(yaml_parser_t *parser, AV *perl_events)
     return 1;
 }
 
+int
+perl_to_libyaml_event(yaml_emitter_t *emitter, HV *perl_event)
+{
+    dTHX;
+    dXCPT;
+    yaml_event_t event;
+    HV *perl_version_directive;
+    SV **event_hashref;
+    int ok;
+    SV *perl_type;
+    char *type;
+    SV **val;
+    int plain_implicit, quoted_implicit;
+    STRLEN len;
+    char *scalar_value;
+    char *anchor_name;
+    char *tag_name;
+    yaml_scalar_style_t style = YAML_ANY_SCALAR_STYLE;
+    int major = 0;
+    int minor = 0;
+    int implicit;
+    yaml_version_directive_t *version_directive;
 
+    implicit = 0;
+    plain_implicit = quoted_implicit = 1;
+    style = YAML_ANY_SCALAR_STYLE;
+    tag_name = NULL;
+    anchor_name = NULL;
+
+    XCPT_TRY_START
+    {
+
+        val = hv_fetch(perl_event, "name", 4, TRUE);
+        if (val && SvOK(*val) && SvPOK( *val )) {
+            type = SvPV(*val, len);
+        }
+        else {
+            croak("%s\n", "event name not defined");
+        }
+
+        val = hv_fetch(perl_event, "anchor", 6, TRUE);
+        if (val && SvOK(*val) && SvPOK( *val )) {
+            anchor_name = SvPV(*val, len);
+        }
+
+        val = hv_fetch(perl_event, "tag", 3, TRUE);
+        if (val && SvOK(*val) && SvPOK( *val )) {
+            tag_name = SvPV(*val, len);
+            plain_implicit = quoted_implicit = 0;
+        }
+
+        val = hv_fetch(perl_event, "style", 5, TRUE);
+        if (val && SvOK(*val) && SvIOK( *val )) {
+            style = SvIV(*val);
+        }
+
+    //    fprintf(stderr, "event %d %s style=%d, tag=%s\n", i, type, style, tag_name);
+        if (strEQ(type, "stream_start_event")) {
+            ok = yaml_stream_start_event_initialize(&event, 0);
+        }
+        else if (strEQ(type, "stream_end_event")) {
+            ok = yaml_stream_end_event_initialize(&event);
+        }
+        else if (strEQ(type, "document_start_event")) {
+            version_directive = NULL;
+            val = hv_fetch(perl_event, "version_directive", 17, TRUE);
+            if (val && SvOK(*val) && SvROK( *val )) {
+                perl_version_directive = (HV *)SvRV(*val);
+
+                val = hv_fetch(perl_version_directive, "major", 5, TRUE);
+                if (val && SvOK(*val) && SvIOK( *val )) {
+                    major = SvIV(*val);
+                }
+                val = hv_fetch(perl_version_directive, "minor", 5, TRUE);
+                if (val && SvOK(*val) && SvIOK( *val )) {
+                    minor = SvIV(*val);
+                }
+                if (major && minor) {
+                    version_directive = Perl_malloc(sizeof(yaml_version_directive_t));
+                    version_directive->major = major;
+                    version_directive->minor = minor;
+                }
+            }
+
+            val = hv_fetch(perl_event, "implicit", 8, TRUE);
+            if (val && SvOK(*val) && SvIOK( *val )) {
+                implicit = SvIV(*val);
+            }
+            ok = yaml_document_start_event_initialize(&event, version_directive, NULL, NULL, implicit);
+        }
+        else if (strEQ(type, "document_end_event")) {
+            val = hv_fetch(perl_event, "implicit", 8, TRUE);
+            if (val && SvOK(*val) && SvIOK( *val )) {
+                implicit = SvIV(*val);
+            }
+            ok = yaml_document_end_event_initialize(&event, implicit);
+        }
+        else if (strEQ(type, "mapping_start_event")) {
+            ok = yaml_mapping_start_event_initialize(
+                &event, anchor_name, tag_name, 0, 0);
+        }
+        else if (strEQ(type, "mapping_end_event")) {
+            ok = yaml_mapping_end_event_initialize(&event);
+        }
+        else if (strEQ(type, "sequence_start_event")) {
+            ok = yaml_sequence_start_event_initialize(
+                &event, anchor_name, tag_name, 0, 0);
+        }
+        else if (strEQ(type, "sequence_end_event")) {
+            ok = yaml_sequence_end_event_initialize(&event);
+        }
+        else if (strEQ(type, "scalar_event")) {
+            val = hv_fetch(perl_event, "value", 5, TRUE);
+            if (val && SvOK(*val) && SvPOK( *val )) {
+                scalar_value = SvPV(*val, len);
+            }
+            else {
+                croak("%s\n", "scalar value not defined");
+            }
+            ok = yaml_scalar_event_initialize(
+                &event, anchor_name, tag_name,
+                (unsigned char *) scalar_value, strlen(scalar_value), plain_implicit, quoted_implicit, style);
+        }
+        else if (strEQ(type, "alias_event")) {
+            val = hv_fetch(perl_event, "value", 5, TRUE);
+            if (val && SvOK(*val) && SvPOK( *val )) {
+                scalar_value = SvPV(*val, len);
+            }
+            else {
+                croak("%s\n", "alias name not defined");
+            }
+            ok = yaml_alias_event_initialize(&event, scalar_value);
+        }
+
+        if (!ok)
+            croak("%s at %s: %s\n", "ERROR creating event", type, emitter->problem);
+        if (!yaml_emitter_emit(emitter, &event))
+            croak("%s at %s: %s\n", "ERROR", type, emitter->problem);
+
+    } XCPT_TRY_END
+
+    XCPT_CATCH
+    {
+        yaml_emitter_delete(emitter);
+        yaml_event_delete(&event);
+        XCPT_RETHROW;
+    }
+
+    return 1;
+
+}
+
+int
+emit_events(yaml_emitter_t *emitter, AV *perl_events)
+{
+
+    dTHX;
+    dXCPT;
+    HV *perl_event;
+    SV **event_hashref;
+    int i;
+
+    XCPT_TRY_START
+    {
+
+        for (i = 0; i <= av_len(perl_events); i++) {
+            event_hashref = av_fetch(perl_events, i, 0);
+            perl_event = (HV *)SvRV(*event_hashref);
+
+            perl_to_libyaml_event(emitter, perl_event);
+        }
+
+        yaml_emitter_delete(emitter);
+    } XCPT_TRY_END
+
+    XCPT_CATCH
+    {
+        yaml_emitter_delete(emitter);
+        XCPT_RETHROW;
+    }
+    return 1;
+}
+
+int
+append_output(void *yaml, unsigned char *buffer, size_t size)
+{
+    dTHX;
+    sv_catpvn((SV *)yaml, (const char *)buffer, (STRLEN)size);
+    return 1;
+}

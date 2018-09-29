@@ -31,7 +31,7 @@ my @scalar_styles = (
     YAML_FOLDED_SCALAR_STYLE,
 );
 my %scalar_styles;
-@scalar_styles{ 0 .. $#scalar_styles } = @scalar_styles;
+@scalar_styles{ @scalar_styles } = 0 .. $#scalar_styles;
 
 my @sequence_styles = (
     YAML_ANY_SEQUENCE_STYLE,
@@ -39,7 +39,7 @@ my @sequence_styles = (
     YAML_FLOW_SEQUENCE_STYLE,
 );
 my %sequence_styles;
-@sequence_styles{ 0 .. $#sequence_styles } = @sequence_styles;
+@sequence_styles{ @sequence_styles } = 0 .. $#sequence_styles;
 
 my @mapping_styles = (
     YAML_ANY_MAPPING_STYLE,
@@ -47,7 +47,7 @@ my @mapping_styles = (
     YAML_FLOW_MAPPING_STYLE,
 );
 my %mapping_styles;
-@mapping_styles{ 0 .. $#mapping_styles } = @mapping_styles;
+@mapping_styles{ @mapping_styles } = 0 .. @mapping_styles;
 
 # deprecated
 sub parse_events {
@@ -72,6 +72,12 @@ sub parse_filehandle_events {
     _numeric_to_string($events);
 }
 
+sub emit_string_events {
+    my ($events) = @_;
+    _string_to_numeric($events);
+    return YAML::LibYAML::API::XS::emit_string_events($events);
+}
+
 sub _numeric_to_string {
     my ($events) = @_;
     for my $event (@$events) {
@@ -83,6 +89,21 @@ sub _numeric_to_string {
         }
         elsif ($event->{name} eq 'mapping_start_event') {
             $event->{style} = $mapping_styles[ $event->{style} ];
+        }
+    }
+}
+
+sub _string_to_numeric {
+    my ($events) = @_;
+    for my $event (@$events) {
+        if ($event->{name} eq 'scalar_event') {
+            $event->{style} = $scalar_styles{ $event->{style} };
+        }
+        elsif ($event->{name} eq 'sequence_start_event') {
+            $event->{style} = $sequence_styles{ $event->{style} };
+        }
+        elsif ($event->{name} eq 'mapping_start_event') {
+            $event->{style} = $mapping_styles{ $event->{style} };
         }
     }
 }

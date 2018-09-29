@@ -113,6 +113,46 @@ parse_filehandle_events(FILE *fh, AV *perl_events)
 
 
 SV *
+emit_string_events(AV *perl_events)
+    CODE:
+    {
+        dXCPT;
+        yaml_emitter_t emitter;
+        char *output;
+        SV *yaml = newSVpvn("", 0);
+
+        XCPT_TRY_START
+        {
+            if (!yaml_emitter_initialize(&emitter)) {
+                croak("%s\n", "Could not initialize the emitter object");
+            }
+            yaml_emitter_set_output(&emitter, &append_output, (void *) yaml);
+            yaml_emitter_set_canonical(&emitter, 0);
+            yaml_emitter_set_unicode(&emitter, 0);
+
+            emit_events(&emitter, perl_events);
+
+            yaml_emitter_delete(&emitter);
+
+        } XCPT_TRY_END
+
+        XCPT_CATCH
+        {
+            yaml_emitter_delete(&emitter);
+            XCPT_RETHROW;
+        }
+
+        if (yaml) {
+            SvUTF8_off(yaml);
+        }
+        RETVAL = yaml;
+
+    }
+    OUTPUT: RETVAL
+
+
+
+SV *
 libyaml_version()
     CODE:
     {
