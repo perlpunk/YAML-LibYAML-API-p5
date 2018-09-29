@@ -119,7 +119,6 @@ emit_string_events(AV *perl_events)
     {
         dXCPT;
         yaml_emitter_t emitter;
-        char *output;
         SV *yaml = newSVpvn("", 0);
 
         XCPT_TRY_START
