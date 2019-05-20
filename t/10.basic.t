@@ -275,6 +275,31 @@ subtest unicode => sub {
     cmp_ok($dump, '=~', qr{- "\\xC3\\xBC \\xC3\\xC0"}i, "binary emit");
 };
 
+subtest indent => sub {
+    my @events = (
+        { name => 'stream_start_event' },
+        { name => 'document_start_event' },
+        { name => 'mapping_start_event', style => 'block' },
+        { name => 'scalar_event', value => 'a', style => ':' },
+        { name => 'mapping_start_event', style => 'block' },
+        { name => 'scalar_event', value => 'b', style => ':' },
+        { name => 'scalar_event', value => 'c', style => ':' },
+        { name => 'mapping_end_event' },
+        { name => 'mapping_end_event' },
+        { name => 'document_end_event', implicit => 1 },
+        { name => 'stream_end_event' },
+    );
+
+    my $options = { indent => 4 };
+    my $dump = YAML::LibYAML::API::emit_string_events(\@events, $options);
+    my $exp_yaml = <<'EOM';
+---
+a:
+    b: c
+EOM
+    cmp_ok($dump, 'eq', $exp_yaml, "Indent 4 emit ok");
+};
+
 done_testing;
 
 END {
