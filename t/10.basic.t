@@ -258,6 +258,10 @@ $ev->[3]->{value} = decode_utf8 "ä";
 $dump = YAML::LibYAML::API::emit_string_events($ev);
 cmp_ok($dump, '=~', qr{- "\\xE4"}i, "utf8 emit");
 
+$ev->[3]->{value} = "\303\274 \303\300";
+$dump = YAML::LibYAML::API::emit_string_events($ev);
+cmp_ok($dump, '=~', qr{- "\\xC3\\xBC \\xC3\\xC0"}i, "binary emit");
+
 done_testing;
 
 END {
