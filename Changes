@@ -1,3 +1,7 @@
+0.004_001 2019-05-25 17:54:31+02:00
+
+    - Add option 'indent' to emitter
+
 0.004 2019-05-11 10:59:50+02:00
 
     - Support unicode
