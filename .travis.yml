@@ -15,3 +15,6 @@ perl:
   - "5.28"
 
 sudo: false             # faster builds as long as you don't need sudo access
+
+env:
+  - WITH_SYSTEM_LIBYAML=1
