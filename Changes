@@ -1,6 +1,6 @@
 Revision history for Perl module YAML::LibYAML::API
 
-0.005_001 2019-06-15 14:16:12+02:00
+0.006 2019-06-20 20:11:54+02:00
 
     - Include libyaml sources
 
