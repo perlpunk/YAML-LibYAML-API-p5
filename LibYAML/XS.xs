@@ -261,3 +261,31 @@ libyaml_version()
 
     }
     OUTPUT: RETVAL
+
+
+SV *
+create_parser()
+    CODE:
+    {
+        const long id = create_parser();
+        RETVAL = newSViv(id);
+    }
+    OUTPUT: RETVAL
+
+SV *
+delete_parser(long id)
+    CODE:
+    {
+        int ok = delete_parser(id);
+        RETVAL = newSViv(ok);
+    }
+    OUTPUT: RETVAL
+
+SV *
+init_string(long id, const char* input)
+    CODE:
+    {
+        int ok = init_string(id, input);
+        RETVAL = newSViv(ok);
+    }
+    OUTPUT: RETVAL

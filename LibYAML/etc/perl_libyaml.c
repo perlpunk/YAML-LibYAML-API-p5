@@ -11,6 +11,19 @@
 #define SCALAR_STYLE_LITERAL "|"
 #define SCALAR_STYLE_FOLDED ">"
 
+/*
+struct Node
+{
+    int uid;
+    yaml_parser_t *p;
+    struct Node *next;
+    struct Node *prev;
+};
+struct Node *saved_parsers = NULL;
+*/
+
+//yaml_parser_t saved_parser;
+
 char *
 parser_error_msg(yaml_parser_t *parser, char *problem)
 {
@@ -434,3 +447,77 @@ append_output(void *yaml, unsigned char *buffer, size_t size)
     sv_catpvn((SV *)yaml, (const char *)buffer, (STRLEN)size);
     return 1;
 }
+
+/*
+long
+save_to_list(yaml_parser_t *parser)
+{
+    fprintf(stderr, "========= save_to_list\n");
+    int uid;
+    if (!saved_parsers) {
+        saved_parsers = (struct Node*)malloc(sizeof(struct Node));
+        saved_parsers->p = parser;
+        saved_parsers->uid = 1;
+    }
+
+    return (long) (uintptr_t) saved_parsers;
+
+}
+*/
+
+long
+create_parser()
+{
+    fprintf(stderr, "========= create_parser\n");
+    yaml_parser_t *parser;
+    parser = malloc(sizeof(yaml_parser_t));
+    if (!parser)
+        croak("%s\n", "Could not malloc");
+
+    if (!yaml_parser_initialize(parser)) {
+        croak("%s\n", "Could not initialize the parser object");
+    }
+
+    return (long) (uintptr_t) parser;
+}
+
+int
+init_string(long id, const char* input)
+{
+    fprintf(stderr, "========= init_string\n");
+    yaml_parser_t *parser;
+
+    parser = (yaml_parser_t*) (uintptr_t) id;
+
+    yaml_parser_set_input_string(parser, input, strlen(input));
+}
+
+int
+delete_parser(long id)
+{
+    fprintf(stderr, "========= delete_parser\n");
+
+    yaml_parser_t *parser;
+    yaml_event_type_t type;
+    yaml_event_t event;
+
+    parser = (yaml_parser_t*) (uintptr_t) id;
+
+    while (1) {
+        if (!yaml_parser_parse(parser, &event)) {
+            croak("%s", parser_error_msg(parser, NULL));
+        }
+        type = event.type;
+        fprintf(stderr, "event type: %d\n", type);
+
+        yaml_event_delete(&event);
+
+        if (type == YAML_STREAM_END_EVENT)
+            break;
+    }
+    yaml_parser_delete(parser);
+    fprintf(stderr, "END\n");
+    return 23;
+}
+
+

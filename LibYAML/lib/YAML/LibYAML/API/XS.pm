@@ -7,6 +7,13 @@ our $VERSION = '0.000'; # VERSION
 use XSLoader;
 XSLoader::load('YAML::LibYAML::API::XS', $VERSION);
 
+sub new {
+    my ($class, %args) = @_;
+    my $self = bless {
+    }, $class;
+    return $self;
+}
+
 sub parse_events {
     parse_string_events(@_);
 }
