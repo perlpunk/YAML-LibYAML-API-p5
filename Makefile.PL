@@ -23,6 +23,7 @@ my %WriteMakefileArgs = (
     "warnings" => 0
   },
   "TEST_REQUIRES" => {
+    "Data::Dumper" => 0,
     "Encode" => 0,
     "File::Spec" => 0,
     "FindBin" => 0,
@@ -33,7 +34,7 @@ my %WriteMakefileArgs = (
     "YAML::PP::Parser" => 0,
     "blib" => "1.01"
   },
-  "VERSION" => "0.006",
+  "VERSION" => "0.006_001",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -41,6 +42,7 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
+  "Data::Dumper" => 0,
   "Encode" => 0,
   "File::Spec" => 0,
   "FindBin" => 0,
