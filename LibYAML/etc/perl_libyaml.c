@@ -453,7 +453,7 @@ long
 parser_create()
 {
     yaml_parser_t *parser;
-    fprintf(stderr, "========= parser_create\n");
+//    fprintf(stderr, "========= parser_create\n");
     parser = malloc(sizeof(yaml_parser_t));
     if (!parser)
         croak("%s\n", "Could not malloc");
@@ -461,7 +461,7 @@ parser_create()
     if (!yaml_parser_initialize(parser)) {
         croak("%s\n", "Could not initialize the parser object");
     }
-    fprintf(stderr, "=== Created parser: %p\n", parser);
+//    fprintf(stderr, "=== Created parser: %p\n", parser);
 
     return (long) (uintptr_t) parser;
 }
@@ -470,7 +470,7 @@ int
 parser_init_string(long id, const char* input)
 {
     yaml_parser_t *parser;
-    fprintf(stderr, "========= parser_init_string\n");
+//    fprintf(stderr, "========= parser_init_string\n");
 
     parser = (yaml_parser_t*) (uintptr_t) id;
 
@@ -487,7 +487,7 @@ parse_callback(long id, SV* code)
     HV *perl_event;
 
     int count;
-    fprintf(stderr, "========= parse_callback\n");
+//    fprintf(stderr, "========= parse_callback\n");
 
     parser = (yaml_parser_t*) (uintptr_t) id;
 
@@ -496,7 +496,7 @@ parse_callback(long id, SV* code)
             croak("%s", parser_error_msg(parser, NULL));
         }
         type = event.type;
-        fprintf(stderr, "event type: %d\n", type);
+//        fprintf(stderr, "event type: %d\n", type);
 
         perl_event = libyaml_to_perl_event(&event);
         call_parse_callback(code, perl_event);
@@ -528,12 +528,12 @@ int
 parser_delete(long id)
 {
     yaml_parser_t *parser;
-    fprintf(stderr, "========= parser_delete\n");
+//    fprintf(stderr, "========= parser_delete\n");
 
     parser = (yaml_parser_t*) (uintptr_t) id;
 
     yaml_parser_delete(parser);
-    fprintf(stderr, "END\n");
+//    fprintf(stderr, "END\n");
     return 23;
 }
 
