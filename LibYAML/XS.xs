@@ -264,28 +264,115 @@ libyaml_version()
 
 
 SV *
-create_parser()
+create_parser(SV* obj)
     CODE:
     {
+        HV *hash;
+        SV* obj_sv;
         const long id = create_parser();
+
+        SvGETMAGIC(obj);
+        if (!SvROK(obj))
+            croak("Not a reference");
+
+        obj_sv = SvRV(obj);
+        if (SvTYPE(obj_sv) != SVt_PVHV)
+            croak("Not a reference to a hash");
+        hash = MUTABLE_HV(obj_sv);
+
+        hv_store(
+            hash, "uid", 3,
+            newSViv( id ), 0
+        );
         RETVAL = newSViv(id);
     }
     OUTPUT: RETVAL
 
 SV *
-delete_parser(long id)
+delete_parser(SV* obj)
     CODE:
     {
+        HV *hash;
+        SV* obj_sv;
+        SV **sv;
+        long id;
+
+        SvGETMAGIC(obj);
+        if (!SvROK(obj))
+            croak("Not a reference");
+
+        obj_sv = SvRV(obj);
+        if (SvTYPE(obj_sv) != SVt_PVHV)
+            croak("Not a reference to a hash");
+        hash = MUTABLE_HV(obj_sv);
+
+        sv = hv_fetch(hash, "uid", 3, TRUE);
+        if (!sv) {
+            croak("%s\n", "Could not get uid");
+        }
+        id = (long) SvIV(*sv);
+
         int ok = delete_parser(id);
         RETVAL = newSViv(ok);
     }
     OUTPUT: RETVAL
 
 SV *
-init_string(long id, const char* input)
+parse_callback(SV* obj, SV* code)
     CODE:
     {
+        HV *hash;
+        SV* obj_sv;
+        SV **sv;
+        long id;
+
+        SvGETMAGIC(obj);
+        if (!SvROK(obj))
+            croak("Not a reference");
+
+        obj_sv = SvRV(obj);
+        if (SvTYPE(obj_sv) != SVt_PVHV)
+            croak("Not a reference to a hash");
+        hash = MUTABLE_HV(obj_sv);
+
+        sv = hv_fetch(hash, "uid", 3, TRUE);
+        if (!sv) {
+            croak("%s\n", "Could not get uid");
+        }
+        id = (long) SvIV(*sv);
+
+        int ok = parse_callback(id, code);
+
+        RETVAL = newSViv(ok);
+    }
+    OUTPUT: RETVAL
+
+SV *
+init_string(SV* obj, const char* input)
+    CODE:
+    {
+        HV *hash;
+        SV* obj_sv;
+        SV **sv;
+        long id;
+
+        SvGETMAGIC(obj);
+        if (!SvROK(obj))
+            croak("Not a reference");
+
+        obj_sv = SvRV(obj);
+        if (SvTYPE(obj_sv) != SVt_PVHV)
+            croak("Not a reference to a hash");
+        hash = MUTABLE_HV(obj_sv);
+
+        sv = hv_fetch(hash, "uid", 3, TRUE);
+        if (!sv) {
+            croak("%s\n", "Could not get uid");
+        }
+        id = (long) SvIV(*sv);
         int ok = init_string(id, input);
         RETVAL = newSViv(ok);
     }
     OUTPUT: RETVAL
+
+

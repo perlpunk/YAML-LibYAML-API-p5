@@ -9,10 +9,11 @@ use Data::Dumper;
 use YAML::LibYAML::API;
 use YAML::LibYAML::API::XS;
 
+my $parser = YAML::LibYAML::API::XS->new;
 my $id;
 eval {
-    $id = YAML::LibYAML::API::XS::create_parser();
-    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([$id], ['id']);
+    $id = $parser->create_parser;
+    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([$parser], ['parser']);
 };
 my $error = $@;
 if ($error) {
@@ -25,9 +26,16 @@ my $yaml = <<'EOM';
 a: b
 EOM
 
-YAML::LibYAML::API::XS::init_string($id, $yaml);
+$parser->init_string($yaml);
 
-YAML::LibYAML::API::XS::delete_parser($id);
+my $cb = sub {
+    my ($type) = @_;
+    warn __PACKAGE__.':'.__LINE__.": !!!!! callback($type)\n";
+};
+
+$parser->parse_callback($cb);
+
+$parser->delete_parser();
 
 ok(1);
 

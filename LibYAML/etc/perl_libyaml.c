@@ -468,8 +468,8 @@ save_to_list(yaml_parser_t *parser)
 long
 create_parser()
 {
-    fprintf(stderr, "========= create_parser\n");
     yaml_parser_t *parser;
+    fprintf(stderr, "========= create_parser\n");
     parser = malloc(sizeof(yaml_parser_t));
     if (!parser)
         croak("%s\n", "Could not malloc");
@@ -477,6 +477,7 @@ create_parser()
     if (!yaml_parser_initialize(parser)) {
         croak("%s\n", "Could not initialize the parser object");
     }
+    fprintf(stderr, "=== Created parser: %p\n", parser);
 
     return (long) (uintptr_t) parser;
 }
@@ -484,8 +485,8 @@ create_parser()
 int
 init_string(long id, const char* input)
 {
-    fprintf(stderr, "========= init_string\n");
     yaml_parser_t *parser;
+    fprintf(stderr, "========= init_string\n");
 
     parser = (yaml_parser_t*) (uintptr_t) id;
 
@@ -493,13 +494,13 @@ init_string(long id, const char* input)
 }
 
 int
-delete_parser(long id)
+parse_callback(long id, SV* code)
 {
-    fprintf(stderr, "========= delete_parser\n");
-
     yaml_parser_t *parser;
     yaml_event_type_t type;
     yaml_event_t event;
+    SV* perl_type;
+    fprintf(stderr, "========= parse_callback\n");
 
     parser = (yaml_parser_t*) (uintptr_t) id;
 
@@ -510,11 +511,33 @@ delete_parser(long id)
         type = event.type;
         fprintf(stderr, "event type: %d\n", type);
 
+
+        dSP;
+
+        PUSHMARK(SP);
+
+        perl_type = newSViv( type );
+        XPUSHs(perl_type);
+        PUTBACK;
+        int count = call_sv(code, G_ARRAY);
+        SPAGAIN;
+
+
         yaml_event_delete(&event);
 
         if (type == YAML_STREAM_END_EVENT)
             break;
     }
+}
+
+int
+delete_parser(long id)
+{
+    yaml_parser_t *parser;
+    fprintf(stderr, "========= delete_parser\n");
+
+    parser = (yaml_parser_t*) (uintptr_t) id;
+
     yaml_parser_delete(parser);
     fprintf(stderr, "END\n");
     return 23;
