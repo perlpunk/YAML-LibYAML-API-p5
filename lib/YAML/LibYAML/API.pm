@@ -45,6 +45,39 @@ my @mapping_styles = (
 my %mapping_styles;
 @mapping_styles{ @mapping_styles } = 0 .. @mapping_styles;
 
+sub new {
+    my ($class, %args) = @_;
+    my $xsparser = YAML::LibYAML::API::XS->new;
+    my $cb = $args{callback};
+    my $self = bless {
+        xsparser => $xsparser,
+        callback => $cb,
+    }, $class;
+    return $self;
+}
+
+sub parse_callback {
+    my ($self, $yaml) = @_;
+    my $xsparser = $self->{xsparser};
+    my $id = $xsparser->parser_create;
+    $xsparser->parser_init_string($yaml);
+    my $cb_orig = $self->{callback};
+    my $cb = sub {
+        my ($event) = @_;
+        _numeric_to_string([$event]);
+        $cb_orig->($event);
+    };
+    $xsparser->set_parse_callback($cb);
+    $xsparser->parse_callback();
+
+}
+
+sub parser_delete {
+    my ($self) = @_;
+    my $ok = $self->{xsparser}->parser_delete();
+}
+
+
 # deprecated
 sub parse_events {
     parse_string_events(@_);
