@@ -28,6 +28,9 @@ append_output(void *yaml, unsigned char *buffer, size_t size);
 long
 parser_create();
 
+long
+parser_initialize(long id);
+
 int
 parser_init_string(long id, const char* input);
 

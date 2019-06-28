@@ -432,23 +432,6 @@ append_output(void *yaml, unsigned char *buffer, size_t size)
     return 1;
 }
 
-/*
-long
-save_to_list(yaml_parser_t *parser)
-{
-    fprintf(stderr, "========= save_to_list\n");
-    int uid;
-    if (!saved_parsers) {
-        saved_parsers = (struct Node*)malloc(sizeof(struct Node));
-        saved_parsers->p = parser;
-        saved_parsers->uid = 1;
-    }
-
-    return (long) (uintptr_t) saved_parsers;
-
-}
-*/
-
 long
 parser_create()
 {
