@@ -270,7 +270,8 @@ parser_create(SV* obj)
     {
         HV *hash;
         SV* obj_sv;
-        const long id = parser_create();
+        SV **sv;
+        long id;
 
         SvGETMAGIC(obj);
         if (!SvROK(obj))
@@ -284,6 +285,17 @@ parser_create(SV* obj)
 #else
         hash = MUTABLE_HV(obj_sv);
 #endif
+
+        sv = hv_fetch(hash, "uid", 3, 0);
+        if (!sv) {
+//            fprintf(stderr, "No parser, creating new\n");
+            id = parser_create();
+        }
+        else {
+            id = (long) SvIV(*sv);
+            parser_initialize(id);
+        }
+
 
         hv_store(
             hash, "uid", 3,

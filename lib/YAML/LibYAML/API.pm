@@ -74,9 +74,17 @@ sub parse_callback {
 
 sub parser_delete {
     my ($self) = @_;
-    my $ok = $self->{xsparser}->parser_delete();
+    if (my $xsparser = $self->{xsparser}) {
+        $xsparser->parser_delete;
+    }
 }
 
+sub DESTROY {
+    my ($self) = @_;
+    if (my $xsparser = $self->{xsparser}) {
+        $xsparser->parser_delete;
+    }
+}
 
 # deprecated
 sub parse_events {

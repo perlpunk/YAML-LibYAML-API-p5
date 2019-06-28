@@ -453,7 +453,7 @@ long
 parser_create()
 {
     yaml_parser_t *parser;
-//    fprintf(stderr, "========= parser_create\n");
+    fprintf(stderr, "========= parser_create\n");
     parser = malloc(sizeof(yaml_parser_t));
     if (!parser)
         croak("%s\n", "Could not malloc");
@@ -462,6 +462,23 @@ parser_create()
         croak("%s\n", "Could not initialize the parser object");
     }
 //    fprintf(stderr, "=== Created parser: %p\n", parser);
+
+    return (long) (uintptr_t) parser;
+}
+
+long
+parser_initialize(long id)
+{
+    yaml_parser_t *parser;
+//    fprintf(stderr, "========= parser_initialize\n");
+    parser = (yaml_parser_t*) (uintptr_t) id;
+    if (!parser)
+        croak("%s\n", "Could not malloc");
+
+    if (!yaml_parser_initialize(parser)) {
+        croak("%s\n", "Could not initialize the parser object");
+    }
+//    fprintf(stderr, "=== Recreated parser: %p\n", parser);
 
     return (long) (uintptr_t) parser;
 }
@@ -528,13 +545,12 @@ int
 parser_delete(long id)
 {
     yaml_parser_t *parser;
-//    fprintf(stderr, "========= parser_delete\n");
+    fprintf(stderr, "========= parser_delete\n");
 
     parser = (yaml_parser_t*) (uintptr_t) id;
 
     yaml_parser_delete(parser);
-//    fprintf(stderr, "END\n");
-    return 23;
+    return 1;
 }
 
 
