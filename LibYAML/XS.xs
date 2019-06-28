@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include "etc/perl_libyaml.h"
 #include "etc/perl_libyaml.c"
 
 /* C functions */
