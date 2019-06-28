@@ -1,28 +1,12 @@
+#define PERL_NO_GET_CONTEXT
 #include "EXTERN.h"
 #include "perl.h"
+#define NO_XSLOCKS
 #include "XSUB.h"
 #define NEED_newRV_noinc
 #include "ppport.h"
 #include <yaml.h>
 
-#define SCALAR_STYLE_PLAIN ":"
-#define SCALAR_STYLE_DOUBLEQUOTED "\""
-#define SCALAR_STYLE_SINGLEQUOTED "'"
-#define SCALAR_STYLE_LITERAL "|"
-#define SCALAR_STYLE_FOLDED ">"
-
-/*
-struct Node
-{
-    int uid;
-    yaml_parser_t *p;
-    struct Node *next;
-    struct Node *prev;
-};
-struct Node *saved_parsers = NULL;
-*/
-
-//yaml_parser_t saved_parser;
 
 char *
 parser_error_msg(yaml_parser_t *parser, char *problem)
@@ -500,6 +484,7 @@ parse_callback(long id, SV* code)
     yaml_event_type_t type;
     yaml_event_t event;
     SV* perl_type;
+    int count;
     fprintf(stderr, "========= parse_callback\n");
 
     parser = (yaml_parser_t*) (uintptr_t) id;
@@ -511,7 +496,6 @@ parse_callback(long id, SV* code)
         type = event.type;
         fprintf(stderr, "event type: %d\n", type);
 
-
         dSP;
 
         PUSHMARK(SP);
@@ -519,7 +503,7 @@ parse_callback(long id, SV* code)
         perl_type = newSViv( type );
         XPUSHs(perl_type);
         PUTBACK;
-        int count = call_sv(code, G_ARRAY);
+        count = call_sv(code, G_ARRAY);
         SPAGAIN;
 
 

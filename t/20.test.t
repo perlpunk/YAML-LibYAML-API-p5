@@ -35,7 +35,7 @@ my $cb = sub {
 
 $parser->parse_callback($cb);
 
-$parser->delete_parser();
+my $ok = $parser->delete_parser();
 
 ok(1);
 
