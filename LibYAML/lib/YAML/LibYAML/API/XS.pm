@@ -14,6 +14,11 @@ sub new {
     return $self;
 }
 
+sub set_parse_callback {
+    my ($self, $code) = @_;
+    $self->{parse_callback} = $code;
+}
+
 sub parse_events {
     parse_string_events(@_);
 }

@@ -265,12 +265,12 @@ libyaml_version()
 
 
 SV *
-create_parser(SV* obj)
+parser_create(SV* obj)
     CODE:
     {
         HV *hash;
         SV* obj_sv;
-        const long id = create_parser();
+        const long id = parser_create();
 
         SvGETMAGIC(obj);
         if (!SvROK(obj))
@@ -294,7 +294,7 @@ create_parser(SV* obj)
     OUTPUT: RETVAL
 
 SV *
-delete_parser(SV* obj)
+parser_delete(SV* obj)
     CODE:
     {
         HV *hash;
@@ -322,13 +322,13 @@ delete_parser(SV* obj)
         }
         id = (long) SvIV(*sv);
 
-        ok = delete_parser(id);
+        ok = parser_delete(id);
         RETVAL = newSViv(ok);
     }
     OUTPUT: RETVAL
 
 SV *
-parse_callback(SV* obj, SV* code)
+parse_callback(SV* obj)
     CODE:
     {
         HV *hash;
@@ -336,6 +336,7 @@ parse_callback(SV* obj, SV* code)
         SV **sv;
         long id;
         int ok;
+        SV* code;
 
         SvGETMAGIC(obj);
         if (!SvROK(obj))
@@ -355,6 +356,9 @@ parse_callback(SV* obj, SV* code)
             croak("%s\n", "Could not get uid");
         }
         id = (long) SvIV(*sv);
+
+        sv = hv_fetch(hash, "parse_callback", 14, TRUE);
+        code = SvRV(*sv);
 
         ok = parse_callback(id, code);
 
@@ -363,7 +367,7 @@ parse_callback(SV* obj, SV* code)
     OUTPUT: RETVAL
 
 SV *
-init_string(SV* obj, const char* input)
+parser_init_string(SV* obj, const char* input)
     CODE:
     {
         HV *hash;
@@ -390,7 +394,7 @@ init_string(SV* obj, const char* input)
             croak("%s\n", "Could not get uid");
         }
         id = (long) SvIV(*sv);
-        ok = init_string(id, input);
+        ok = parser_init_string(id, input);
         RETVAL = newSViv(ok);
     }
     OUTPUT: RETVAL

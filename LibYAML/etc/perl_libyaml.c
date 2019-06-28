@@ -450,10 +450,10 @@ save_to_list(yaml_parser_t *parser)
 */
 
 long
-create_parser()
+parser_create()
 {
     yaml_parser_t *parser;
-    fprintf(stderr, "========= create_parser\n");
+    fprintf(stderr, "========= parser_create\n");
     parser = malloc(sizeof(yaml_parser_t));
     if (!parser)
         croak("%s\n", "Could not malloc");
@@ -467,10 +467,10 @@ create_parser()
 }
 
 int
-init_string(long id, const char* input)
+parser_init_string(long id, const char* input)
 {
     yaml_parser_t *parser;
-    fprintf(stderr, "========= init_string\n");
+    fprintf(stderr, "========= parser_init_string\n");
 
     parser = (yaml_parser_t*) (uintptr_t) id;
 
@@ -515,10 +515,10 @@ parse_callback(long id, SV* code)
 }
 
 int
-delete_parser(long id)
+parser_delete(long id)
 {
     yaml_parser_t *parser;
-    fprintf(stderr, "========= delete_parser\n");
+    fprintf(stderr, "========= parser_delete\n");
 
     parser = (yaml_parser_t*) (uintptr_t) id;
 

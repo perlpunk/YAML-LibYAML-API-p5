@@ -12,7 +12,7 @@ use YAML::LibYAML::API::XS;
 my $parser = YAML::LibYAML::API::XS->new;
 my $id;
 eval {
-    $id = $parser->create_parser;
+    $id = $parser->parser_create;
     warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([$parser], ['parser']);
 };
 my $error = $@;
@@ -26,16 +26,17 @@ my $yaml = <<'EOM';
 a: b
 EOM
 
-$parser->init_string($yaml);
+$parser->parser_init_string($yaml);
 
 my $cb = sub {
     my ($type) = @_;
     warn __PACKAGE__.':'.__LINE__.": !!!!! callback($type)\n";
 };
 
-$parser->parse_callback($cb);
+$parser->set_parse_callback($cb);
+$parser->parse_callback();
 
-my $ok = $parser->delete_parser();
+my $ok = $parser->parser_delete();
 
 ok(1);
 

@@ -26,13 +26,13 @@ int
 append_output(void *yaml, unsigned char *buffer, size_t size);
 
 long
-create_parser();
+parser_create();
 
 int
-init_string(long id, const char* input);
+parser_init_string(long id, const char* input);
 
 int
 parse_callback(long id, SV* code);
 
 int
-delete_parser(long id);
+parser_delete(long id);
