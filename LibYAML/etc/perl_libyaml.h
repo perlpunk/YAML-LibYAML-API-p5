@@ -38,4 +38,4 @@ int
 parser_delete(long id);
 
 int
-call_parse_callback(SV* code, yaml_event_type_t type);
+call_parse_callback(SV* code, HV* perl_event);

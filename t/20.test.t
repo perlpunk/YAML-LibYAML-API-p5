@@ -29,8 +29,8 @@ EOM
 $parser->parser_init_string($yaml);
 
 my $cb = sub {
-    my ($type) = @_;
-    warn __PACKAGE__.':'.__LINE__.": !!!!! callback($type)\n";
+    my ($event) = @_;
+    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([$event], ['event']);
 };
 
 $parser->set_parse_callback($cb);

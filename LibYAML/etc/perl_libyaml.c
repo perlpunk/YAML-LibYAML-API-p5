@@ -484,6 +484,8 @@ parse_callback(long id, SV* code)
     yaml_event_type_t type;
     yaml_event_t event;
     SV* perl_type;
+    HV *perl_event;
+
     int count;
     fprintf(stderr, "========= parse_callback\n");
 
@@ -496,7 +498,8 @@ parse_callback(long id, SV* code)
         type = event.type;
         fprintf(stderr, "event type: %d\n", type);
 
-        call_parse_callback(code, type);
+        perl_event = libyaml_to_perl_event(&event);
+        call_parse_callback(code, perl_event);
 
         yaml_event_delete(&event);
 
@@ -506,16 +509,14 @@ parse_callback(long id, SV* code)
 }
 
 int
-call_parse_callback(SV* code, yaml_event_type_t type)
+call_parse_callback(SV* code, HV* perl_event)
 {
-    SV* perl_type;
     int count;
     dSP;
 
     PUSHMARK(SP);
 
-    perl_type = newSViv( type );
-    XPUSHs(perl_type);
+    XPUSHs(newRV_noinc( (SV *)perl_event) );
     PUTBACK;
     count = call_sv(code, G_ARRAY);
     SPAGAIN;
