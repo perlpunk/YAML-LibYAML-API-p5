@@ -496,22 +496,31 @@ parse_callback(long id, SV* code)
         type = event.type;
         fprintf(stderr, "event type: %d\n", type);
 
-        dSP;
-
-        PUSHMARK(SP);
-
-        perl_type = newSViv( type );
-        XPUSHs(perl_type);
-        PUTBACK;
-        count = call_sv(code, G_ARRAY);
-        SPAGAIN;
-
+        call_parse_callback(code, type);
 
         yaml_event_delete(&event);
 
         if (type == YAML_STREAM_END_EVENT)
             break;
     }
+}
+
+int
+call_parse_callback(SV* code, yaml_event_type_t type)
+{
+    SV* perl_type;
+    int count;
+    dSP;
+
+    PUSHMARK(SP);
+
+    perl_type = newSViv( type );
+    XPUSHs(perl_type);
+    PUTBACK;
+    count = call_sv(code, G_ARRAY);
+    SPAGAIN;
+
+    return 1;
 }
 
 int

@@ -36,3 +36,6 @@ parse_callback(long id, SV* code);
 
 int
 parser_delete(long id);
+
+int
+call_parse_callback(SV* code, yaml_event_type_t type);
