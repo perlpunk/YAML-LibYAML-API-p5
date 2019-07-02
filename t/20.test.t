@@ -35,6 +35,19 @@ $xsparser->set_parse_callback($cb);
 $xsparser->parse_callback();
 
 my $ok = $xsparser->parser_delete();
+cmp_ok($ok, '==', 1, '1. delete returns 1');
+ok(! exists $xsparser->{uid}, 'uid was deleted');
+
+$ok = $xsparser->parser_delete();
+cmp_ok($ok, '==', 0, '2. delete returns 0');
+
+$xsparser->{uid} = undef;
+$ok = $xsparser->parser_delete();
+cmp_ok($ok, '==', 0, '3. delete returns 0');
+
+$xsparser->{uid} = 0;
+$ok = $xsparser->parser_delete();
+cmp_ok($ok, '==', 0, '4. delete returns 0');
 
 ok(1);
 

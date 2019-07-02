@@ -534,7 +534,7 @@ parser_delete(long id)
 
     parser = (yaml_parser_t*) (uintptr_t) id;
     if (!parser)
-        return 1;
+        return 0;
 
     yaml_parser_delete(parser);
     return 1;

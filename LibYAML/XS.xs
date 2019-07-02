@@ -313,7 +313,7 @@ parser_delete(SV* obj)
         SV* obj_sv;
         SV **sv;
         long id;
-        int ok;
+        int deleted = 0;
 
         SvGETMAGIC(obj);
         if (!SvROK(obj))
@@ -328,14 +328,20 @@ parser_delete(SV* obj)
         hash = MUTABLE_HV(obj_sv);
 #endif
 
-        sv = hv_fetch(hash, "uid", 3, TRUE);
-        if (!sv) {
-            croak("%s\n", "Could not get uid");
+        if (hv_exists(hash, "uid", 3)) {
+            sv = hv_fetch(hash, "uid", 3, TRUE);
+            if (!sv) {
+                croak("%s\n", "Could not get uid");
+            }
+            if (SvOK(*sv)) {
+                id = (long) SvIV(*sv);
+                if (id > 0)
+                    deleted = parser_delete(id);
+            }
+            hv_delete(hash, "uid", 3, TRUE);
         }
-        id = (long) SvIV(*sv);
 
-        ok = parser_delete(id);
-        RETVAL = newSViv(ok);
+        RETVAL = newSViv(deleted);
     }
     OUTPUT: RETVAL
 
