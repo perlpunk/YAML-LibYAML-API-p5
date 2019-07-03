@@ -269,22 +269,10 @@ parser_create(SV* obj)
     CODE:
     {
         HV *hash;
-        SV* obj_sv;
         SV **sv;
         long id;
 
-        SvGETMAGIC(obj);
-        if (!SvROK(obj))
-            croak("Not a reference");
-
-        obj_sv = SvRV(obj);
-        if (SvTYPE(obj_sv) != SVt_PVHV)
-            croak("Not a reference to a hash");
-#if PERL_REVISION > 5 || (PERL_REVISION == 5 && PERL_VERSION <= 8)
-        hash = (HV *)(obj_sv);
-#else
-        hash = MUTABLE_HV(obj_sv);
-#endif
+        hash = get_object_hash(obj);
 
         sv = hv_fetch(hash, "uid", 3, 0);
         if (!sv) {
@@ -310,23 +298,11 @@ parser_delete(SV* obj)
     CODE:
     {
         HV *hash;
-        SV* obj_sv;
         SV **sv;
         long id;
         int deleted = 0;
 
-        SvGETMAGIC(obj);
-        if (!SvROK(obj))
-            croak("Not a reference");
-
-        obj_sv = SvRV(obj);
-        if (SvTYPE(obj_sv) != SVt_PVHV)
-            croak("Not a reference to a hash");
-#if PERL_REVISION > 5 || (PERL_REVISION == 5 && PERL_VERSION <= 8)
-        hash = (HV *)(obj_sv);
-#else
-        hash = MUTABLE_HV(obj_sv);
-#endif
+        hash = get_object_hash(obj);
 
         if (hv_exists(hash, "uid", 3)) {
             sv = hv_fetch(hash, "uid", 3, TRUE);
@@ -350,24 +326,12 @@ parse_callback(SV* obj)
     CODE:
     {
         HV *hash;
-        SV* obj_sv;
         SV **sv;
         long id;
         int ok;
         SV* code;
 
-        SvGETMAGIC(obj);
-        if (!SvROK(obj))
-            croak("Not a reference");
-
-        obj_sv = SvRV(obj);
-        if (SvTYPE(obj_sv) != SVt_PVHV)
-            croak("Not a reference to a hash");
-#if PERL_REVISION > 5 || (PERL_REVISION == 5 && PERL_VERSION <= 8)
-        hash = (HV *)(obj_sv);
-#else
-        hash = MUTABLE_HV(obj_sv);
-#endif
+        hash = get_object_hash(obj);
 
         sv = hv_fetch(hash, "uid", 3, TRUE);
         if (!sv) {
@@ -389,23 +353,11 @@ parser_init_string(SV* obj, const char* input)
     CODE:
     {
         HV *hash;
-        SV* obj_sv;
         SV **sv;
         long id;
         int ok;
 
-        SvGETMAGIC(obj);
-        if (!SvROK(obj))
-            croak("Not a reference");
-
-        obj_sv = SvRV(obj);
-        if (SvTYPE(obj_sv) != SVt_PVHV)
-            croak("Not a reference to a hash");
-#if PERL_REVISION > 5 || (PERL_REVISION == 5 && PERL_VERSION <= 8)
-        hash = (HV *)(obj_sv);
-#else
-        hash = MUTABLE_HV(obj_sv);
-#endif
+        hash = get_object_hash(obj);
 
         sv = hv_fetch(hash, "uid", 3, TRUE);
         if (!sv) {

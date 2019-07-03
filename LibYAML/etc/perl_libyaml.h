@@ -42,3 +42,6 @@ parser_delete(long id);
 
 int
 call_parse_callback(SV* code, HV* perl_event);
+
+HV*
+get_object_hash(SV* obj);

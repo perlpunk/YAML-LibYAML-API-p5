@@ -540,4 +540,23 @@ parser_delete(long id)
     return 1;
 }
 
+HV*
+get_object_hash(SV* obj)
+{
+    HV *hash;
+    SV* obj_sv;
+    SvGETMAGIC(obj);
+    if (!SvROK(obj))
+        croak("Not a reference");
 
+    obj_sv = SvRV(obj);
+    if (SvTYPE(obj_sv) != SVt_PVHV)
+        croak("Not a reference to a hash");
+#if PERL_REVISION > 5 || (PERL_REVISION == 5 && PERL_VERSION <= 8)
+    hash = (HV *)(obj_sv);
+#else
+    hash = MUTABLE_HV(obj_sv);
+#endif
+    return hash;
+
+}
