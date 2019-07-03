@@ -45,3 +45,6 @@ call_parse_callback(SV* code, HV* perl_event);
 
 HV*
 get_object_hash(SV* obj);
+
+long
+hash_get_uid(HV* hash);

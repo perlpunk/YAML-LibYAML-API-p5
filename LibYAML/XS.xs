@@ -284,7 +284,6 @@ parser_create(SV* obj)
             parser_initialize(id);
         }
 
-
         hv_store(
             hash, "uid", 3,
             newSViv( id ), 0
@@ -332,12 +331,7 @@ parse_callback(SV* obj)
         SV* code;
 
         hash = get_object_hash(obj);
-
-        sv = hv_fetch(hash, "uid", 3, TRUE);
-        if (!sv) {
-            croak("%s\n", "Could not get uid");
-        }
-        id = (long) SvIV(*sv);
+        id = hash_get_uid(hash);
 
         sv = hv_fetch(hash, "parse_callback", 14, TRUE);
         code = SvRV(*sv);
@@ -353,17 +347,12 @@ parser_init_string(SV* obj, const char* input)
     CODE:
     {
         HV *hash;
-        SV **sv;
         long id;
         int ok;
 
         hash = get_object_hash(obj);
+        id = hash_get_uid(hash);
 
-        sv = hv_fetch(hash, "uid", 3, TRUE);
-        if (!sv) {
-            croak("%s\n", "Could not get uid");
-        }
-        id = (long) SvIV(*sv);
         ok = parser_init_string(id, input);
         RETVAL = newSViv(ok);
     }

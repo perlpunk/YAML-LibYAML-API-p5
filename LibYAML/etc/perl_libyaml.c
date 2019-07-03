@@ -560,3 +560,20 @@ get_object_hash(SV* obj)
     return hash;
 
 }
+
+long
+hash_get_uid(HV* hash)
+{
+    SV **sv;
+    long id;
+
+    sv = hv_fetch(hash, "uid", 3, TRUE);
+    if (!sv) {
+        croak("%s\n", "Could not get uid");
+    }
+    id = (long) SvIV(*sv);
+    if (!id)
+        croak("%s\n", "Could not get uid");
+
+    return id;
+}
