@@ -61,13 +61,7 @@ sub parse_callback {
     my $xsparser = $self->{xsparser};
     my $id = $xsparser->parser_create;
     $xsparser->parser_init_string($yaml);
-    my $cb_orig = $self->{callback};
-    my $cb = sub {
-        my ($event) = @_;
-        _numeric_to_string([$event]);
-        $cb_orig->($event);
-    };
-    $xsparser->set_parse_callback($cb);
+    $xsparser->set_parse_callback($self->{callback});
     $xsparser->parse_callback();
 
 }
