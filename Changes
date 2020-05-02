@@ -1,5 +1,11 @@
 Revision history for Perl module YAML::LibYAML::API
 
+0.008_001 2020-05-02 23:43:58+02:00
+
+    - Update libyaml sources to 0.2.4. Changes affecting this module:
+    - Output '...' at the stream end after a block scalar with trailing empty lines
+    - Accept '%YAML 1.2' directives
+
 0.008 2020-02-19 13:55:40+01:00
 
     - Support numeric anchors (before strings were required)
