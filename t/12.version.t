@@ -4,7 +4,6 @@ use warnings;
 use Test::More;
 
 use FindBin '$Bin';
-use Data::Dumper;
 
 use Encode;
 use YAML::LibYAML::API;
