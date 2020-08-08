@@ -265,7 +265,7 @@ subtest emit_file_events => sub {
 
 subtest unicode => sub {
     my $ev = [];
-    $yaml = "[ö]";
+    $yaml = "- ö";
     YAML::LibYAML::API::parse_string_events($yaml, $ev);
     my $value = encode_utf8 $ev->[3]->{value};
     cmp_ok($value, 'eq', "ö", "utf8 parse");
