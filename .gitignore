@@ -7,3 +7,4 @@ LibYAML/Makefile
 LibYAML/*.bs
 LibYAML/*.o
 LibYAML/XS.c
+/local/
