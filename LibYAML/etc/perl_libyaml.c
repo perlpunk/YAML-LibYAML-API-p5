@@ -94,6 +94,20 @@ libyaml_to_perl_event(yaml_event_t *event)
                 newRV_noinc((SV *)perl_version_directive), 0
             );
         }
+        /* We only set tag_directives to an integer for now */
+        yaml_tag_directive_t *tag_directive;
+        int has_tag_directives = 0;
+        for (tag_directive = event->data.document_start.tag_directives.start;
+                tag_directive != event->data.document_start.tag_directives.end;
+                tag_directive ++) {
+                has_tag_directives++;
+        }
+        if (has_tag_directives > 0) {
+            hv_store(
+                perl_event, "tag_directives", 14,
+                newSViv( 1 ), 0
+            );
+        }
 
 
     }
