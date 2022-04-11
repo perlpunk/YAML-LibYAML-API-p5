@@ -32,7 +32,9 @@ my @exp_events = (
 
     {
         name => 'document_start_event',
-        tag_directives => 1,
+        tag_directives => [
+            { handle => '!foo!', prefix => '!bar-' }
+        ],
     },
     { name => 'sequence_start_event', style => YAML_BLOCK_SEQUENCE_STYLE },
     { name => 'scalar_event', value => 'b', style => YAML_PLAIN_SCALAR_STYLE },
