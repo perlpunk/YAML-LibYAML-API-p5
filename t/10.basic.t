@@ -12,7 +12,7 @@ subtest parse_string_events => sub {
     diag "directive: $dir";
     is "$dir", '[major:1 minor:2]';
 
-#    my $type = YAML::LibYAML::API::FFI::event_type->new(1);
+    my $type = YAML::LibYAML::API::FFI::event_type->new(1);
     my $event = YAML::LibYAML::API::FFI::event->new({
         type => 1,
     });
