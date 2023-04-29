@@ -12,14 +12,29 @@ subtest parse_string_events => sub {
     diag "directive: $dir";
     is "$dir", '[major:1 minor:2]';
 
-    my $type = YAML::LibYAML::API::FFI::event_type->new(1);
-    my $event = YAML::LibYAML::API::FFI::event->new({
-        type => 1,
+    my $str = YAML::LibYAML::API::FFI::event_type::YAML_STREAM_END_EVENT;
+    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$str], ['str']);
+    my $mark = YAML::LibYAML::API::FFI::YamlMark->new({
+        index => 1,
+        line => 1,
+        column => 23,
     });
-    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$event], ['event']);
-    my $type = $event->type;
-    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$type], ['type']);
-    return;
+    my $event = YAML::LibYAML::API::FFI::event->new({
+        type => $str,
+        start_mark => {
+            index => 1,
+            line => 1,
+            column => 23,
+        },
+        end_mark => {
+            index => 1,
+            line => 1,
+            column => 23,
+        },
+    });
+    diag explain $event->type;
+    diag explain $event->start_mark->column;
+    diag explain $event->end_mark->column;
 };
 
 subtest libyaml_version => sub {
