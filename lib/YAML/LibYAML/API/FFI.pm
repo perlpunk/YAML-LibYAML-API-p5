@@ -42,38 +42,59 @@ package YAML::LibYAML::API::FFI::version_dir {
 }
 
 package YAML::LibYAML::API::FFI::event_type {
-    $ffi->load_custom_type('::Enum', 'yaml_event_type_t',
-        { rev => 'int', package => 'YAML::LibYAML::API::FFI::event_type', prefix => 'YAML_' },
-        'NO_EVENT',
-        'STREAM_START_EVENT',
-        'STREAM_END_EVENT',
-        'DOCUMENT_START_EVENT',
-        'DOCUMENT_END_EVENT',
-        'ALIAS_EVENT',
-        'SCALAR_EVENT',
-        'SEQUENCE_START_EVENT',
-        'SEQUENCE_END_EVENT',
-        'MAPPING_START_EVENT',
-        'MAPPING_END_EVENT',
+    FFI::C->enum( yaml_event_type_t => [qw/
+        NO_EVENT
+        STREAM_START_EVENT STREAM_END_EVENT
+        DOCUMENT_START_EVENT DOCUMENT_END_EVENT
+        ALIAS_EVENT SCALAR_EVENT
+        SEQUENCE_START_EVENT SEQUENCE_END_EVENT
+        MAPPING_START_EVENT MAPPING_END_EVENT
+    /],
+    { prefix => 'YAML_', package => 'YAML::LibYAML::API::FFI::event_type' }
     );
 }
 
-
 package YAML::LibYAML::API::FFI::YamlMark {
+    use overload
+        '""' => sub { shift->as_string };
     FFI::C->struct([
         index => 'int',
         line =>'int',
         column => 'int',
     ]);
+    sub as_string {
+        my ($self) = @_;
+        sprintf "MarK(%d):[L:%d C:%d]", $self->index, $self->line, $self->column;
+    }
 }
 
-package YAML::LibYAML::API::FFI::event {
+package YAML::LibYAML::API::FFI::Scalar {
+    FFI::C->struct( YAML_Scalar => [
+        length => 'int',
+        plain_implicit => 'int',
+        # ???
+#        anchor => 'unsigned char*',
+        tag => 'string(22)',
+    ]);
+}
+
+package YAML::LibYAML::API::FFI::EventData {
+    FFI::C->union( yaml_event_data_t => [
+        stream_start => 'int',
+        document_end => 'int',
+        scalar => 'YAML_Scalar',
+    ]);
+}
+
+package YAML::LibYAML::API::FFI::Event {
     FFI::C->struct([
         type => 'enum',
         start_mark => 'yaml_mark_t',
         end_mark => 'yaml_mark_t',
+        data => 'yaml_event_data_t',
     ]);
 }
+
 # /** The event structure. */
 # typedef struct yaml_event_s {
 # 
@@ -162,10 +183,9 @@ package YAML::LibYAML::API::FFI::event {
 # 
 # } yaml_event_t;
 
-#    $ffi->type('record(YAML::LibYAML::API::FFI::event)' => 'yaml_event_t');
 #    $ffi->attach( yaml_stream_start_event_initialize => [qw/ yaml_event_t* yaml_encoding_t /] => ['int'] );
 
 
-#$ffi->type( 'opaque' => 'yaml_event_t' );
 1;
+
 
