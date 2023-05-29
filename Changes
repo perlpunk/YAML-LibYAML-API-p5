@@ -1,5 +1,10 @@
 Revision history for Perl module YAML::LibYAML::API
 
+0.013_001 2023-05-30 00:57:12+02:00
+
+    - Add object oriented parser interface
+    - Add YAML::LibYAML::API::YPP as a YAML::PP drop-in replacement
+
 0.013 2022-04-11 23:58:42+02:00
 
     - Change License to MIT because of included libyaml
