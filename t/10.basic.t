@@ -8,6 +8,7 @@ use FindBin '$Bin';
 use Encode;
 use YAML::LibYAML::API;
 use YAML::LibYAML::API::XS;
+use YAML::LibYAML::API::Parser;
 use YAML::PP::Common qw/
     YAML_ANY_SCALAR_STYLE YAML_PLAIN_SCALAR_STYLE
     YAML_SINGLE_QUOTED_SCALAR_STYLE YAML_DOUBLE_QUOTED_SCALAR_STYLE
@@ -40,9 +41,9 @@ close $fh;
 
 
 my @exp_events;
-subtest parse_string_events => sub {
-    my $ev = [];
-    YAML::LibYAML::API::parse_string_events($yaml, $ev);
+sub parse_string_events {
+    my ($code) = @_;
+    my $ev = $code->($yaml);
 
     my @ts = map { YAML::PP::Common::event_to_test_suite($_) } @$ev;
     @exp_events = (
@@ -178,6 +179,30 @@ subtest parse_string_events => sub {
     is_deeply($ev, \@exp_events, "parse_events - Events match");
 };
 
+subtest parse_string_events_functional => sub {
+    my $code = sub {
+        my ($yaml) = @_;
+        my $ev = [];
+        YAML::LibYAML::API::parse_string_events($yaml, $ev);
+        return $ev;
+    };
+    parse_string_events($code);
+};
+
+subtest parse_string_events_object => sub {
+    my $code = sub {
+        my ($yaml) = @_;
+        my $p = YAML::LibYAML::API::Parser->new;
+        my $ok = $p->set_input_string($yaml);
+        my $ev = [];
+        while (my $event = $p->parse) {
+            push @$ev, $event;
+        }
+        return $ev;
+    };
+    parse_string_events($code);
+};
+
 subtest libyaml_version => sub {
     my $libyaml_version = YAML::LibYAML::API::XS::libyaml_version();
     diag "libyaml version = $libyaml_version";
@@ -219,20 +244,37 @@ my @exp_file_events = (
     },
 );
 
-subtest parse_file_events => sub {
+subtest parse_file_events_functional => sub {
     my $ev = [];
     YAML::LibYAML::API::parse_file_events("$Bin/data/simple.yaml", $ev);
-
     is_deeply($ev, \@exp_file_events, "parse_file_events");
 
     open my $fh, "<", "$Bin/data/simple.yaml" or die $!;
-
     $ev = [];
     YAML::LibYAML::API::parse_filehandle_events($fh, $ev);
     close $fh;
 
     is_deeply($ev, \@exp_file_events, "parse_filehandle_events");
 
+};
+
+subtest parse_file_events_object => sub {
+    my $p = YAML::LibYAML::API::Parser->new;
+    my $ok = $p->set_input_file("$Bin/data/simple.yaml");
+    my $ev = [];
+    while (my $event = $p->parse) {
+        push @$ev, $event;
+    }
+    is_deeply($ev, \@exp_file_events, "parse_file_events");
+
+    open my $fh, "<", "$Bin/data/simple.yaml" or die $!;
+    $ev = [];
+    $ok = $p->set_input_filehandle($fh);
+    while (my $event = $p->parse) {
+        push @$ev, $event;
+    }
+    close $fh;
+    is_deeply($ev, \@exp_file_events, "parse_filehandle_events");
 };
 
 subtest emit_string_events => sub {

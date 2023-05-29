@@ -273,3 +273,190 @@ libyaml_version()
 
     }
     OUTPUT: RETVAL
+
+
+MODULE = YAML::LibYAML::API::XS      PACKAGE = YAML::LibYAML::API::Parser
+
+PROTOTYPES: DISABLE
+
+# XS code
+
+SV *
+new(...)
+    PPCODE:
+    {
+        dXCPT;
+        yaml_parser_t *parser;
+        SV *point_sv;
+        SV *point_svrv;
+        SV *pparser;
+        char *class_name;
+
+        XCPT_TRY_START
+        {
+            class_name = SvPV_nolen(ST(0));
+            parser = (yaml_parser_t*) malloc(sizeof(yaml_parser_t));
+            if (!yaml_parser_initialize(parser)) {
+                croak("%s\n", "Could not initialize the parser object");
+            }
+
+        } XCPT_TRY_END
+
+        XCPT_CATCH
+        {
+            yaml_parser_delete(parser);
+            XCPT_RETHROW;
+        }
+        point_sv = sv_2mortal(newSViv(PTR2IV(parser)));
+        point_svrv = sv_2mortal(newRV_inc(point_sv));
+        pparser = sv_bless(point_svrv, gv_stashpv(class_name, 1));
+        XPUSHs(pparser);
+        XSRETURN(1);
+    }
+
+SV *
+set_input_string(SV *pparser, const char *input)
+    PPCODE:
+    {
+        dXCPT;
+        yaml_parser_t *parser;
+        SV *ret_sv;
+        SV *point_sv;
+
+        XCPT_TRY_START
+        {
+            point_sv = SvROK(pparser)? SvRV(pparser): pparser;
+            parser = INT2PTR(yaml_parser_t*, SvIV(point_sv));
+            yaml_parser_delete(parser);
+            if (!yaml_parser_initialize(parser)) {
+                croak("%s\n", "Could not initialize the parser object");
+            }
+            yaml_parser_set_input_string(parser, input, strlen(input));
+            ret_sv = sv_2mortal(newSVnv(1));
+
+        } XCPT_TRY_END
+
+        XCPT_CATCH
+        {
+            yaml_parser_delete(parser);
+            XCPT_RETHROW;
+        }
+        XPUSHs(ret_sv);
+        XSRETURN(1);
+    }
+
+SV *
+set_input_file(SV *pparser, const char *filename)
+    PPCODE:
+    {
+        dXCPT;
+        yaml_parser_t *parser;
+        SV *ret_sv;
+        SV *point_sv;
+        FILE *fh;
+
+        XCPT_TRY_START
+        {
+            point_sv = SvROK(pparser)? SvRV(pparser): pparser;
+            parser = INT2PTR(yaml_parser_t*, SvIV(point_sv));
+            yaml_parser_delete(parser);
+            if (!yaml_parser_initialize(parser)) {
+                croak("%s\n", "Could not initialize the parser object");
+            }
+            fh = fopen(filename, "rb");
+            yaml_parser_set_input_file(parser, fh);
+            ret_sv = sv_2mortal(newSVnv(1));
+
+        } XCPT_TRY_END
+
+        XCPT_CATCH
+        {
+            yaml_parser_delete(parser);
+            XCPT_RETHROW;
+        }
+        XPUSHs(ret_sv);
+        XSRETURN(1);
+    }
+
+SV *
+set_input_filehandle(SV *pparser, FILE *fh)
+    PPCODE:
+    {
+        dXCPT;
+        yaml_parser_t *parser;
+        SV *ret_sv;
+        SV *point_sv;
+
+        XCPT_TRY_START
+        {
+            point_sv = SvROK(pparser)? SvRV(pparser): pparser;
+            parser = INT2PTR(yaml_parser_t*, SvIV(point_sv));
+            yaml_parser_delete(parser);
+            if (!yaml_parser_initialize(parser)) {
+                croak("%s\n", "Could not initialize the parser object");
+            }
+            yaml_parser_set_input_file(parser, fh);
+            ret_sv = sv_2mortal(newSVnv(1));
+
+        } XCPT_TRY_END
+
+        XCPT_CATCH
+        {
+            yaml_parser_delete(parser);
+            XCPT_RETHROW;
+        }
+        XPUSHs(ret_sv);
+        XSRETURN(1);
+    }
+
+void
+DESTROY(SV *pparser)
+    PPCODE:
+    {
+        dXCPT;
+        yaml_parser_t *parser;
+        SV *point_sv;
+
+        point_sv = SvROK(pparser)? SvRV(pparser): pparser;
+        parser = INT2PTR(yaml_parser_t*, SvIV(point_sv));
+        yaml_parser_delete(parser);
+        free(parser);
+
+        XSRETURN(0);
+    }
+
+SV *
+parse(SV *pparser)
+    PPCODE:
+        yaml_parser_t *parser;
+        yaml_event_t event;
+        HV *perl_event;
+        SV *point_sv;
+        SV *eref;
+        dXCPT;
+
+        XCPT_TRY_START
+        {
+            point_sv = SvROK(pparser)? SvRV(pparser): pparser;
+            parser = INT2PTR(yaml_parser_t*, SvIV(point_sv));
+            if (parser->state != YAML_PARSE_END_STATE) {
+                if (!yaml_parser_parse(parser, &event)) {
+                    croak("%s", parser_error_msg(parser, NULL));
+                }
+                perl_event = libyaml_to_perl_event(&event);
+                yaml_event_delete(&event);
+                XPUSHs(sv_2mortal((SV*)newRV_noinc((SV*)perl_event)));
+            }
+            else {
+                XPUSHs(&PL_sv_undef);
+            }
+        } XCPT_TRY_END
+
+        XCPT_CATCH
+        {
+            yaml_event_delete(&event);
+            yaml_parser_delete(parser);
+            XCPT_RETHROW;
+        }
+        XSRETURN(1);
+

@@ -176,6 +176,8 @@ of nodes. There's no wrapper for these functions yet.
 This is just one of the first releases. The function names will eventually be
 changed.
 
+See also L<YAML::LibYAML::API::Parser> for an OOP interface.
+
 The sources of C<libyaml-dev> are included in this distribution. You can
 build this module with the system libyaml instead, if you remove the libyaml
 sources and call C<Makefile.PL> with C<WITH_SYSTEM_LIBYAML=1>.
