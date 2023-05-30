@@ -291,6 +291,7 @@ new(...)
         SV *point_svrv;
         SV *pparser;
         char *class_name;
+        HV *hash;
 
         XCPT_TRY_START
         {
@@ -299,6 +300,11 @@ new(...)
             if (!yaml_parser_initialize(parser)) {
                 croak("%s\n", "Could not initialize the parser object");
             }
+            point_sv = newSViv(PTR2IV(parser));
+            hash = newHV();
+            hv_store(hash, "ptr", 3, point_sv, 0);
+            point_svrv = sv_2mortal(newRV_noinc((SV*)hash));
+            pparser = sv_bless(point_svrv, gv_stashpv(class_name, 1));
 
         } XCPT_TRY_END
 
@@ -307,9 +313,6 @@ new(...)
             yaml_parser_delete(parser);
             XCPT_RETHROW;
         }
-        point_sv = sv_2mortal(newSViv(PTR2IV(parser)));
-        point_svrv = sv_2mortal(newRV_inc(point_sv));
-        pparser = sv_bless(point_svrv, gv_stashpv(class_name, 1));
         XPUSHs(pparser);
         XSRETURN(1);
     }
@@ -321,50 +324,21 @@ set_input_string(SV *pparser, const char *input)
         dXCPT;
         yaml_parser_t *parser;
         SV *ret_sv;
-        SV *point_sv;
+        HV *hash;
+        SV **val;
 
         XCPT_TRY_START
         {
-            point_sv = SvROK(pparser)? SvRV(pparser): pparser;
-            parser = INT2PTR(yaml_parser_t*, SvIV(point_sv));
+            hash = (HV*)(SvROK(pparser)? SvRV(pparser): pparser);
+            val = hv_fetch(hash, "ptr", 3, TRUE);
+            if (val && SvOK(*val) && SvIOK(*val)) {
+                parser = INT2PTR(yaml_parser_t*, SvIV(*val));
+            }
             yaml_parser_delete(parser);
             if (!yaml_parser_initialize(parser)) {
                 croak("%s\n", "Could not initialize the parser object");
             }
             yaml_parser_set_input_string(parser, input, strlen(input));
-            ret_sv = sv_2mortal(newSVnv(1));
-
-        } XCPT_TRY_END
-
-        XCPT_CATCH
-        {
-            yaml_parser_delete(parser);
-            XCPT_RETHROW;
-        }
-        XPUSHs(ret_sv);
-        XSRETURN(1);
-    }
-
-SV *
-set_input_file(SV *pparser, const char *filename)
-    PPCODE:
-    {
-        dXCPT;
-        yaml_parser_t *parser;
-        SV *ret_sv;
-        SV *point_sv;
-        FILE *fh;
-
-        XCPT_TRY_START
-        {
-            point_sv = SvROK(pparser)? SvRV(pparser): pparser;
-            parser = INT2PTR(yaml_parser_t*, SvIV(point_sv));
-            yaml_parser_delete(parser);
-            if (!yaml_parser_initialize(parser)) {
-                croak("%s\n", "Could not initialize the parser object");
-            }
-            fh = fopen(filename, "rb");
-            yaml_parser_set_input_file(parser, fh);
             ret_sv = sv_2mortal(newSVnv(1));
 
         } XCPT_TRY_END
@@ -385,17 +359,21 @@ set_input_filehandle(SV *pparser, FILE *fh)
         dXCPT;
         yaml_parser_t *parser;
         SV *ret_sv;
-        SV *point_sv;
+        HV *hash;
+        SV **val;
 
         XCPT_TRY_START
         {
-            point_sv = SvROK(pparser)? SvRV(pparser): pparser;
-            parser = INT2PTR(yaml_parser_t*, SvIV(point_sv));
-            yaml_parser_delete(parser);
-            if (!yaml_parser_initialize(parser)) {
-                croak("%s\n", "Could not initialize the parser object");
+            hash = (HV*)(SvROK(pparser)? SvRV(pparser): pparser);
+            val = hv_fetch(hash, "ptr", 3, TRUE);
+            if (val && SvOK(*val) && SvIOK(*val)) {
+                parser = INT2PTR(yaml_parser_t*, SvIV(*val));
+                yaml_parser_delete(parser);
+                if (!yaml_parser_initialize(parser)) {
+                    croak("%s\n", "Could not initialize the parser object");
+                }
+                yaml_parser_set_input_file(parser, fh);
             }
-            yaml_parser_set_input_file(parser, fh);
             ret_sv = sv_2mortal(newSVnv(1));
 
         } XCPT_TRY_END
@@ -410,17 +388,21 @@ set_input_filehandle(SV *pparser, FILE *fh)
     }
 
 void
-DESTROY(SV *pparser)
+DESTROY_(SV *pparser)
     PPCODE:
     {
         dXCPT;
         yaml_parser_t *parser;
-        SV *point_sv;
+        HV *hash;
+        SV **val;
 
-        point_sv = SvROK(pparser)? SvRV(pparser): pparser;
-        parser = INT2PTR(yaml_parser_t*, SvIV(point_sv));
-        yaml_parser_delete(parser);
-        free(parser);
+        hash = (HV*)(SvROK(pparser)? SvRV(pparser): pparser);
+        val = hv_fetch(hash, "ptr", 3, TRUE);
+        if (val && SvOK(*val) && SvIOK(*val)) {
+            parser = INT2PTR(yaml_parser_t*, SvIV(*val));
+            yaml_parser_delete(parser);
+            free(parser);
+        }
 
         XSRETURN(0);
     }
@@ -430,15 +412,19 @@ parse(SV *pparser)
     PPCODE:
         yaml_parser_t *parser;
         yaml_event_t event;
+        HV *hash;
+        SV **val;
         HV *perl_event;
-        SV *point_sv;
         SV *eref;
         dXCPT;
 
         XCPT_TRY_START
         {
-            point_sv = SvROK(pparser)? SvRV(pparser): pparser;
-            parser = INT2PTR(yaml_parser_t*, SvIV(point_sv));
+            hash = (HV*)(SvROK(pparser)? SvRV(pparser): pparser);
+            val = hv_fetch(hash, "ptr", 3, TRUE);
+            if (val && SvOK(*val) && SvIOK(*val)) {
+                parser = INT2PTR(yaml_parser_t*, SvIV(*val));
+            }
             if (parser->state != YAML_PARSE_END_STATE) {
                 if (!yaml_parser_parse(parser, &event)) {
                     croak("%s", parser_error_msg(parser, NULL));
